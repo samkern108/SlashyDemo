@@ -130,12 +130,12 @@ public class PlayerController : MonoBehaviour
 			if (savedSlashCharge > 0.0f) {
 				collision.gameObject.GetComponent <Enemy> ().Slashed ();
 			} else {
-				Destroy (this.gameObject);
+				Die ();
 			}
 		}
 		else if (LayerMask.LayerToName (collision.gameObject.layer) == "Projectile") {
 			if (savedSlashCharge <= 0.0f) {
-				Destroy (this.gameObject);
+				Die ();
 			} else {
 				StartCoroutine ("ColorFadeIn", Color.blue);
 			}
@@ -159,5 +159,11 @@ public class PlayerController : MonoBehaviour
 			currentRG -= Time.deltaTime;
 			spriteR.color = Color.Lerp (Color.white, color, currentRG);
 		}
+	}
+
+	private void Die()
+	{
+		LevelMaster.GameOver ();
+		Destroy (this.gameObject);
 	}
 } 

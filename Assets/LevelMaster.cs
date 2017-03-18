@@ -5,6 +5,7 @@ using UnityEngine;
 public class LevelMaster : MonoBehaviour {
 
 	public static int level = 0;
+	public static int levelCap = 1;
 	public static int enemiesRemaining = 0;
 	public static GameObject levelContainer;
 
@@ -16,6 +17,17 @@ public class LevelMaster : MonoBehaviour {
 	public static void LoadNextLevel() {
 		level++;
 		UIManager.self.ShowLevelNumber (level);
-		levelContainer = Instantiate(ResourceLoader.LoadLevelPrefab (level));
+		levelContainer = Instantiate(ResourceLoader.LoadLevelPrefab (level), levelContainer.transform.parent);
+	}
+
+	public static void EnemyDied() {
+		enemiesRemaining--;
+		if (enemiesRemaining == 0 && level < levelCap) {
+			LoadNextLevel ();
+		}
+	}
+
+	public static void GameOver() {
+		Notifications.self.SendGameOverNotification ();
 	}
 }

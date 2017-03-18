@@ -14,4 +14,13 @@ public class Projectile : MonoBehaviour {
 	void Update () {
 		transform.position += moveDir * moveSpeed * Time.deltaTime;
 	}
+
+	// Destroy the missile when no camera can see it any longer.
+	public void OnBecameInvisible() {
+		Destroy (this.gameObject);
+	}
+
+	public void GameOver() {
+		moveSpeed = 0f;
+	}
 }

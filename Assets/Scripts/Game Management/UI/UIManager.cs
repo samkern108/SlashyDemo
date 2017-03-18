@@ -68,4 +68,10 @@ public class UIManager : MonoBehaviour {
 	{
 		blueDotText.text = blueDots + "";
 	}
+
+	// Notifications
+
+	public void GameOver() {
+		// Show game over UI
+	}
 }

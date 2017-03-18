@@ -16,11 +16,27 @@ public class Enemy : Slashable {
 
 	public override void Slashed() {
 		Destroy (this.gameObject);
+		LevelMaster.EnemyDied ();
 	}
 
 	private void Shoot() {
-		GameObject missile = Instantiate (missilePrefab);
+		GameObject missile = Instantiate (missilePrefab, transform.parent);
 		missile.transform.position = this.transform.position;
 		missile.GetComponent<Projectile>().Initialize (PlayerController.hero.position - transform.position);
+	}
+
+	// Notifications
+
+	public void GameOver() {
+		CancelInvoke ();
+	}
+
+	public void Pause(bool pause) {
+		if (pause) {
+			CancelInvoke ();
+		} else {
+			// TODO(samkern): Clean for exploits.
+			InvokeRepeating ("Shoot", shootTimer, shootTimer);
+		}
 	}
 }
