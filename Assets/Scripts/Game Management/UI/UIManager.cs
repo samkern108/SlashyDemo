@@ -7,10 +7,14 @@ public class UIManager : MonoBehaviour {
 	public static UIManager self;
 	private static GameObject menu;
 
-	public void Start()
+	private static Text levelText, blueDotText;
+
+	public void Awake()
 	{
 		self = this;
 		menu = transform.FindChild ("Menu").gameObject;
+		levelText = transform.FindChild ("Level").GetComponent<Text>();
+		blueDotText = transform.FindChild ("Blue Dots").GetComponent<Text>();
 	}
 
 	public void Update()
@@ -42,5 +46,26 @@ public class UIManager : MonoBehaviour {
 	{
 		GameManager.PauseGame (false);
 		GameManager.QuitToMenu ();
+	}
+
+	public void ShowLevelNumber(int levelNumber)
+	{
+		levelText.text = "LEVEL " + levelNumber;
+		levelText.FadeIn (2.0f, true);
+	}
+
+	private void HideElement(GameObject gameObject)
+	{
+		gameObject.SetActive (false);
+	}
+
+	private void ShowElement()
+	{
+		gameObject.SetActive (true);
+	}
+
+	public void SetBlueDots(int blueDots)
+	{
+		blueDotText.text = blueDots + "";
 	}
 }
