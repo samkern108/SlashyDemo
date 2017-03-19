@@ -7,6 +7,7 @@ public class LevelMaster : MonoBehaviour {
 	public static int level = 0;
 	public static int levelCap = 2;
 	public static int enemiesRemaining = 0;
+	public static int blueDotsRemaining = 0;
 	public static GameObject levelContainer;
 	public static GameObject hero, heroPrefab;
 
@@ -33,8 +34,14 @@ public class LevelMaster : MonoBehaviour {
 
 	public static void EnemyDied() {
 		enemiesRemaining--;
-		Debug.Log (enemiesRemaining);
 		if (enemiesRemaining == 0 && level < levelCap) {
+			LoadNextLevel ();
+		}
+	}
+
+	public static void CollectBlueDot() {
+		blueDotsRemaining--;
+		if (blueDotsRemaining == 0 && level < levelCap) {
 			LoadNextLevel ();
 		}
 	}
