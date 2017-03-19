@@ -5,7 +5,7 @@ using UnityEngine;
 public class Projectile : MonoBehaviour {
 
 	private Vector3 moveDir;
-	private float moveSpeed = 1f;
+	private float moveSpeed = 5f;
 
 	public void Initialize (Vector2 moveDir) {
 		this.moveDir = moveDir;

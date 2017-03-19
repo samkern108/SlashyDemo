@@ -24,7 +24,7 @@ public class Enemy : Slashable {
 	private void Shoot() {
 		GameObject missile = Instantiate (missilePrefab, transform.parent);
 		missile.transform.position = this.transform.position;
-		missile.GetComponent<Projectile>().Initialize (PlayerController.hero.position - transform.position);
+		missile.GetComponent<Projectile>().Initialize ((PlayerController.hero.position - transform.position).normalized);
 	}
 
 	// Notifications
