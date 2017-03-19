@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PlayerCamera : MonoBehaviour {
 
-	public static Camera camera;
+	public static Camera thisCamera;
 	private static GameObject hero;
 
 	public void Start() {
@@ -29,12 +29,12 @@ public class PlayerCamera : MonoBehaviour {
 	private float max_x, min_x, max_y, min_y;
 
 	void Start () {
-		camera = GetComponent<Camera>();
+		thisCamera = GetComponent<Camera>();
 
 		Bounds b = background.bounds;
 	
-		float height = camera.orthographicSize;
-		float width = height * camera.aspect;
+		float height = thisCamera.orthographicSize;
+		float width = height * thisCamera.aspect;
 
 		min_y = b.min.y + height;
 		min_x = b.min.x + width;

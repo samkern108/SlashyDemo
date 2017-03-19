@@ -17,8 +17,6 @@ public static class GraphicEffects {
 	}
 
 	private static IEnumerator<float> FlickerCo(this Graphic obj) {
-		float timer = 2000;
-		float t = 0;
 		while (true) {
 			Color c = obj.color;
 			c.a += Random.Range (1f - c.a, .6f - c.a);
