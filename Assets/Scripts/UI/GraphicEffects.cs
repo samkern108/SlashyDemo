@@ -52,7 +52,7 @@ public static class GraphicEffects {
 			yield return 0f;
 		}
 		if (autoreverse) {
-			AlphaCo (obj, end, start, timer, easeType, false);
+			AlphaFade (obj, end, start, timer, easeType, false);
 		}
 	}
 
@@ -64,7 +64,7 @@ public static class GraphicEffects {
 			yield return 0f;
 		}
 		if (autoreverse) {
-			ColorCo (obj, end, start, timer, easeType, false);
+			ColorFade (obj, end, start, timer, easeType, false);
 		}
 	}
 
