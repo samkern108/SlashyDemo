@@ -56,16 +56,6 @@ public class UIManager : MonoBehaviour {
 		levelText.FadeIn (2.0f, true);
 	}
 
-	private void HideElement(GameObject gameObject)
-	{
-		gameObject.SetActive (false);
-	}
-
-	private void ShowElement()
-	{
-		gameObject.SetActive (true);
-	}
-
 	public void SetBlueDots(int blueDots)
 	{
 		blueDotText.text = blueDots + "";
@@ -75,5 +65,9 @@ public class UIManager : MonoBehaviour {
 
 	public void GameOver() {
 		gameOver.SetActive (true);
+	}
+
+	public void Restart() {
+		gameOver.SetActive (false);
 	}
 }

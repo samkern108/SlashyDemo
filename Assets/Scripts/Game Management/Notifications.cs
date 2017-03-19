@@ -17,4 +17,8 @@ public class Notifications : MonoBehaviour {
 	public void SendPauseNotification(bool pause) {
 		BroadcastMessage ("Pause",pause);
 	}
+
+	public void SendRestartNotification() {
+		BroadcastMessage ("Restart");
+	}
 }
