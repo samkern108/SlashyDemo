@@ -47,7 +47,7 @@ public static class GraphicEffects {
 		while (t < 1.0) {
 			t += Time.deltaTime * (1.0f/timer);
 			Color c = obj.color;
-			c.a = Mathf.Lerp(start, end, Ease(t, easeType)) * .5f;
+			c.a = Mathf.Lerp(start, end, Ease(t, easeType));
 			obj.color = c;
 			yield return 0f;
 		}
@@ -60,7 +60,7 @@ public static class GraphicEffects {
 		float t = 0.0f;
 		while (t < 1.0) {
 			t += Time.deltaTime * (1.0f/timer);
-			obj.color = Color.Lerp(start, end, Ease(t, easeType)) * .5f;
+			obj.color = Color.Lerp(start, end, Ease(t, easeType));
 			yield return 0f;
 		}
 		if (autoreverse) {
@@ -79,7 +79,7 @@ public static class GraphicEffects {
 			float t = 0.0f;
 			while (t < 1.0f) {
 				t += Time.deltaTime * (1.0f/timer);
-				obj.color = Color.Lerp(colorRange[i], colorRange[(i+1) % colorRange.Length], t) * .5f;
+				obj.color = Color.Lerp(colorRange[i], colorRange[(i+1) % colorRange.Length], t);
 				yield return 0f;
 			}
 			i = ++i % colorRange.Length;

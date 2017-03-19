@@ -53,7 +53,7 @@ public class UIManager : MonoBehaviour {
 	public void ShowLevelNumber(int levelNumber)
 	{
 		levelText.text = "LEVEL " + levelNumber;
-		levelText.FadeIn (2.0f, true);
+		levelText.FadeIn (2.0f, false);
 	}
 
 	public void SetBlueDots(int blueDots)
