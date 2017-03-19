@@ -133,7 +133,10 @@ public class PlayerController : MonoBehaviour
 				Die ();
 			}
 		}
-		else if (LayerMask.LayerToName (collision.gameObject.layer) == "Projectile") {
+	}
+
+	public void OnTriggerEnter2D(Collider2D collider) {
+		if (LayerMask.LayerToName (collider.gameObject.layer) == "Projectile") {
 			if (savedSlashCharge <= 0.0f) {
 				Die ();
 			} else {
