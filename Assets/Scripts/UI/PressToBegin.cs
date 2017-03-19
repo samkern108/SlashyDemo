@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameOverPanel : MonoBehaviour {
+public class PressToBegin : MonoBehaviour {
 
 	void Update () {
 		if (Input.anyKeyDown) {

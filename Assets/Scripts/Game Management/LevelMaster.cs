@@ -11,10 +11,10 @@ public class LevelMaster : MonoBehaviour {
 	public static GameObject hero, heroPrefab;
 
 	void Start () {
+		IOManager.Initialize ();
+
 		levelContainer = transform.FindChild ("LevelContainer").gameObject;
 		heroPrefab = ResourceLoader.LoadPrefab ("Hero");
-		InitHero ();
-		LoadNextLevel ();
 	}
 
 	public static void InitHero() {

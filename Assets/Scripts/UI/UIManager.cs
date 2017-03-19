@@ -25,31 +25,6 @@ public class UIManager : MonoBehaviour {
 			menu.SetActive (!menu.activeInHierarchy);
 	}
 
-	public void ShowVictoryPanel()
-	{
-		transform.FindChild ("VictoryPanel").gameObject.SetActive (true);
-		GameManager.PauseGame (true);
-	}
-
-	public void ShowDefeatPanel()
-	{
-		transform.FindChild ("GameOverPanel").gameObject.SetActive (true);
-		GameManager.PauseGame (true);
-	}
-
-	public void RetryButton()
-	{
-		GameManager.PauseGame (false);
-		GameManager.RestartLevel ();
-		menu.SetActive (false);
-	}
-
-	public void QuitButton()
-	{
-		GameManager.PauseGame (false);
-		GameManager.QuitToMenu ();
-	}
-
 	public void ShowLevelNumber(int levelNumber)
 	{
 		levelText.text = "LEVEL " + levelNumber;
