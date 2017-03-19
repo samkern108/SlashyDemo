@@ -29,18 +29,18 @@ public class PlayerController : MonoBehaviour
 			if (chargingSlash) {
 				ChargeSlash ();
 			}
-
-			if(savedSlashCharge > 0) {
-				ApplySlashDistance ();
-			}
-			
-			//1: Conduct Linecasts
+				
 			Linecasts ();
-			Move ();
-			if (Input.GetKeyDown (KeyCode.Space))
-				BeginSlash ();
-			if (Input.GetKeyUp (KeyCode.Space) && chargingSlash)
-				ReleaseSlash ();
+
+			if (savedSlashCharge > 0) {
+				ApplySlashDistance ();
+			} else {
+				Move ();
+				if (Input.GetKeyDown (KeyCode.Space))
+					BeginSlash ();
+				if (Input.GetKeyUp (KeyCode.Space) && chargingSlash)
+					ReleaseSlash ();
+			}
 		}
 	}
 
@@ -57,6 +57,10 @@ public class PlayerController : MonoBehaviour
 		float moveSpeed = chargingSlash ? walkSpeed : runSpeed;
 
 		transform.position += new Vector3 (hAxis, vAxis) * moveSpeed * Time.deltaTime;
+
+		// Smoothly rotate to face direction
+
+
 	}
 
 	// Maybe I can get LinecastNonAlloc to work someday.
@@ -89,10 +93,13 @@ public class PlayerController : MonoBehaviour
 
 	private void ReleaseSlash() {
 		chargingSlash = false;
-		slashDir = new Vector3 (hAxis, vAxis);
-		savedSlashCharge = slashCharge;
-
-		slashCharge = 0.0f;
+		slashDir = new Vector3 (hAxis, vAxis).normalized;
+		if (slashDir != Vector3.zero) {
+			savedSlashCharge = slashCharge;
+			slashCharge = 0.0f;
+		} else {
+			spriteR.color = Color.white;
+		}
 	}
 
 	private Vector3 slashDir;
@@ -110,6 +117,7 @@ public class PlayerController : MonoBehaviour
 		} else {
 			transform.position += slashIncrement;
 			savedSlashCharge -= slashIncrement.magnitude;
+			slashLine.SetPosition(0,transform.position);
 		}
 		float bgFactor = (slashChargeMax - savedSlashCharge) / slashChargeMax;
 		spriteR.color = new Color (1f, bgFactor, bgFactor, 1f);
