@@ -5,7 +5,7 @@ using UnityEngine;
 public class BlueDot : MonoBehaviour {
 
 	public void Start() {
-		LevelMaster.blueDotsRemaining++;
+		LevelMaster.AddBlueDot ();
 	}
 		
 	public void OnTriggerEnter2D(Collider2D collider) {
