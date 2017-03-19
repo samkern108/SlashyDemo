@@ -20,7 +20,8 @@ public class Projectile : MonoBehaviour {
 		Destroy (this.gameObject);
 	}
 
-	public void GameOver() {
+	public void GameEnd(bool victory) {
 		moveSpeed = 0f;
+		// If we win, the projectile should explode. :)
 	}
 }

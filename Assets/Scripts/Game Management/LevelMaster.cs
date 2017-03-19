@@ -19,6 +19,7 @@ public class LevelMaster : MonoBehaviour {
 	}
 
 	public static void InitHero() {
+		if(hero) Destroy (hero);
 		hero = Instantiate (heroPrefab);
 		Vector3 newPos = Camera.main.transform.position;
 		newPos.z = 0;
@@ -37,8 +38,11 @@ public class LevelMaster : MonoBehaviour {
 
 	public static void EnemyDied() {
 		enemiesRemaining--;
-		if (enemiesRemaining == 0 && level < levelCap) {
-			LoadNextLevel ();
+		if (enemiesRemaining == 0) {
+			if (level < levelCap)
+				LoadNextLevel ();
+			else
+				Victory ();
 		}
 	}
 
@@ -51,13 +55,20 @@ public class LevelMaster : MonoBehaviour {
 	public static void CollectBlueDot() {
 		blueDotsRemaining--;
 		UIManager.self.SetBlueDots (blueDotsRemaining);
-		if (blueDotsRemaining == 0 && level < levelCap) {
-			LoadNextLevel ();
+		if (blueDotsRemaining == 0) {
+			if(level < levelCap)
+				LoadNextLevel ();
+			else
+				Victory ();
 		}
 	}
 
-	public static void GameOver() {
-		Notifications.self.SendGameOverNotification ();
+	public static void Victory() {
+		Notifications.self.SendGameEndNotification (true);
+	}
+
+	public static void Defeat() {
+		Notifications.self.SendGameEndNotification (false);
 	}
 
 	public static void Restart() {

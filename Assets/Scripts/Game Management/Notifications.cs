@@ -10,8 +10,8 @@ public class Notifications : MonoBehaviour {
 		self = this;
 	}
 
-	public void SendGameOverNotification() {
-		BroadcastMessage ("GameOver");
+	public void SendGameEndNotification(bool victory) {
+		BroadcastMessage ("GameEnd", victory);
 	}
 
 	public void SendPauseNotification(bool pause) {

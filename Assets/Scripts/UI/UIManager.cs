@@ -8,7 +8,7 @@ public class UIManager : MonoBehaviour {
 	private static GameObject menu;
 
 	private static Text levelText, blueDotText;
-	private static GameObject gameOver;
+	private static GameObject gameOverPanel, victoryPanel;
 
 	public void Awake()
 	{
@@ -16,7 +16,8 @@ public class UIManager : MonoBehaviour {
 		menu = transform.FindChild ("Menu").gameObject;
 		levelText = transform.FindChild ("Level").GetComponent<Text>();
 		blueDotText = transform.FindChild ("Blue Dots").GetComponent<Text>();
-		gameOver = transform.FindChild ("Game Over").gameObject;
+		gameOverPanel = transform.FindChild ("Game Over").gameObject;
+		victoryPanel = transform.FindChild ("Victory").gameObject;
 	}
 
 	public void Update()
@@ -38,11 +39,15 @@ public class UIManager : MonoBehaviour {
 
 	// Notifications
 
-	public void GameOver() {
-		gameOver.SetActive (true);
+	public void GameEnd(bool victory) {
+		if (victory)
+			victoryPanel.SetActive (true);
+		else
+			gameOverPanel.SetActive (true);
 	}
 
 	public void Restart() {
-		gameOver.SetActive (false);
+		gameOverPanel.SetActive (false);
+		victoryPanel.SetActive (false);
 	}
 }

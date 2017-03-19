@@ -34,7 +34,7 @@ public class Enemy : Slashable {
 
 	// Notifications
 
-	public void GameOver() {
+	public void GameEnd() {
 		CancelInvoke ();
 	}
 

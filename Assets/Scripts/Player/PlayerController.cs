@@ -194,7 +194,7 @@ public class PlayerController : MonoBehaviour
 
 	private void Die()
 	{
-		LevelMaster.GameOver ();
+		LevelMaster.Defeat();
 		Destroy (this.gameObject);
 	}
 } 
