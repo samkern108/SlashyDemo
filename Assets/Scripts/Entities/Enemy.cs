@@ -22,9 +22,14 @@ public class Enemy : Slashable {
 	}
 
 	private void Shoot() {
+		Vector3 shootDirection = (PlayerController.hero.position - transform.position).normalized;
+		float angle = Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg - 90;
+		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+		transform.rotation = q;
+
 		GameObject missile = Instantiate (missilePrefab, transform.parent);
 		missile.transform.position = this.transform.position;
-		missile.GetComponent<Projectile>().Initialize ((PlayerController.hero.position - transform.position).normalized);
+		missile.GetComponent<Projectile>().Initialize (shootDirection);
 	}
 
 	// Notifications

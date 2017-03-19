@@ -5,7 +5,7 @@ using UnityEngine;
 public class LevelMaster : MonoBehaviour {
 
 	public static int level = 0;
-	public static int levelCap = 2;
+	public static int levelCap = 3;
 	public static int enemiesRemaining = 0;
 	private static int blueDotsRemaining = 0;
 	public static GameObject levelContainer;
