@@ -8,6 +8,7 @@ public class UIManager : MonoBehaviour {
 	private static GameObject menu;
 
 	private static Text levelText, blueDotText;
+	private static GameObject gameOver;
 
 	public void Awake()
 	{
@@ -15,6 +16,7 @@ public class UIManager : MonoBehaviour {
 		menu = transform.FindChild ("Menu").gameObject;
 		levelText = transform.FindChild ("Level").GetComponent<Text>();
 		blueDotText = transform.FindChild ("Blue Dots").GetComponent<Text>();
+		gameOver = transform.FindChild ("Game Over").gameObject;
 	}
 
 	public void Update()
@@ -72,6 +74,6 @@ public class UIManager : MonoBehaviour {
 	// Notifications
 
 	public void GameOver() {
-		// Show game over UI
+		gameOver.SetActive (true);
 	}
 }
