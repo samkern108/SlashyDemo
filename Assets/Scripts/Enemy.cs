@@ -8,6 +8,8 @@ public class Enemy : Slashable {
 	private float shootTimer = 0.5f;
 
 	void Start () {
+		LevelMaster.enemiesRemaining++;
+
 		if (!missilePrefab)
 			missilePrefab = ResourceLoader.LoadPrefab ("Projectile");
 

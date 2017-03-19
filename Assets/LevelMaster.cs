@@ -5,7 +5,7 @@ using UnityEngine;
 public class LevelMaster : MonoBehaviour {
 
 	public static int level = 0;
-	public static int levelCap = 1;
+	public static int levelCap = 2;
 	public static int enemiesRemaining = 0;
 	public static GameObject levelContainer;
 
@@ -22,6 +22,7 @@ public class LevelMaster : MonoBehaviour {
 
 	public static void EnemyDied() {
 		enemiesRemaining--;
+		Debug.Log (enemiesRemaining);
 		if (enemiesRemaining == 0 && level < levelCap) {
 			LoadNextLevel ();
 		}
