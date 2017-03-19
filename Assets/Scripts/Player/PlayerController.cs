@@ -56,11 +56,23 @@ public class PlayerController : MonoBehaviour
 
 		float moveSpeed = chargingSlash ? walkSpeed : runSpeed;
 
-		transform.position += new Vector3 (hAxis, vAxis) * moveSpeed * Time.deltaTime;
+		Vector3 moveDir = new Vector3 (hAxis, vAxis);
+
+		transform.position += moveDir * moveSpeed * Time.deltaTime;
 
 		// Smoothly rotate to face direction
+		if(!chargingSlash)
+			Rotate(moveDir);
+	}
 
+	private void Rotate(Vector3 dir) {
 
+		if (transform.eulerAngles == dir)
+			return;
+
+		float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90;
+		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+		transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 8.0f);
 	}
 
 	// Maybe I can get LinecastNonAlloc to work someday.
@@ -79,8 +91,16 @@ public class PlayerController : MonoBehaviour
 		float bgFactor = (slashChargeMax - slashCharge)/slashChargeMax;
 		Color color = new Color (1f, bgFactor, bgFactor, 1f);
 		GetComponent<SpriteRenderer> ().color = color;
+
+		Vector3 slashVector = transform.position + slashCharge * new Vector3 (hAxis, vAxis, 0);
+
 		slashLine.SetPosition (0, transform.position);
-		slashLine.SetPosition(1, transform.position + slashCharge * new Vector3(hAxis, vAxis, 0));
+		slashLine.SetPosition(1, slashVector);
+
+		slashVector -= transform.position;
+		float angle = Mathf.Atan2(slashVector.y, slashVector.x) * Mathf.Rad2Deg - 90;
+		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+		transform.rotation = q;
 	}
 
 	private void BeginSlash() {
