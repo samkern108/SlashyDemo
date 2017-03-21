@@ -61,18 +61,20 @@ public class PlayerController : MonoBehaviour
 		transform.position += moveDir * moveSpeed * Time.deltaTime;
 
 		// Smoothly rotate to face direction
-		if(!chargingSlash)
-			Rotate(moveDir);
+		Rotate(moveDir, false);
 	}
 
-	private void Rotate(Vector3 dir) {
+	private void Rotate(Vector3 dir, bool instant) {
 
 		if (transform.eulerAngles == dir)
 			return;
 
 		float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90;
 		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
-		transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 8.0f);
+		if (instant)
+			transform.rotation = q;
+		else
+			transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 8.0f);
 	}
 
 	// Maybe I can get LinecastNonAlloc to work someday.
@@ -92,15 +94,10 @@ public class PlayerController : MonoBehaviour
 		Color color = new Color (1f, bgFactor, bgFactor, 1f);
 		GetComponent<SpriteRenderer> ().color = color;
 
-		Vector3 slashVector = transform.position + slashCharge * new Vector3 (hAxis, vAxis, 0);
+		Vector3 slashVector = transform.position + slashCharge * transform.up;
 
 		slashLine.SetPosition (0, transform.position);
 		slashLine.SetPosition(1, slashVector);
-
-		slashVector -= transform.position;
-		float angle = Mathf.Atan2(slashVector.y, slashVector.x) * Mathf.Rad2Deg - 90;
-		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
-		transform.rotation = q;
 	}
 
 	private void BeginSlash() {
@@ -113,17 +110,13 @@ public class PlayerController : MonoBehaviour
 
 	private void ReleaseSlash() {
 		chargingSlash = false;
-		slashDir = new Vector3 (hAxis, vAxis).normalized;
-		if (slashDir != Vector3.zero) {
-			savedSlashCharge = slashCharge;
-			slashCharge = 0.0f;
-		} else {
-			spriteR.color = Color.white;
-		}
+		slashDir = transform.up;
+		savedSlashCharge = slashCharge;
+		slashCharge = 0.0f;
 	}
 
 	private Vector3 slashDir;
-	private float slashSpeed = 6f;
+	private float slashSpeed = 10f;
 
 	private float slashLength = 2.0f;
 	private float savedSlashCharge = 0.0f;
