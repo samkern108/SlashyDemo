@@ -184,6 +184,7 @@ public class PlayerController : MonoBehaviour
 
 	private void Die()
 	{
+		Time.timeScale = 1;
 		LevelMaster.Defeat();
 		Destroy (this.gameObject);
 	}
