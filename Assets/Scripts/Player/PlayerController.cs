@@ -77,7 +77,7 @@ public class PlayerController : MonoBehaviour
 	}
 
 	private float slashCharge;
-	private float slashChargeRate = 4f;
+	private float slashChargeRate = 10f;
 	private float slashChargeMax = 10f;
 	private float slashChargeBase = .2f;
 	private bool chargingSlash = false;
@@ -92,6 +92,8 @@ public class PlayerController : MonoBehaviour
 
 		slashLine.SetPosition (0, transform.position);
 		slashLine.SetPosition(1, PlayerCamera.WrapWithinCameraBounds(slashVector));
+
+		Time.timeScale = Mathf.Max(bgFactor * .16f, .4f);
 	}
 
 	private void BeginSlash() {
@@ -110,7 +112,7 @@ public class PlayerController : MonoBehaviour
 	}
 
 	private Vector3 slashDir;
-	private float slashSpeed = 10f;
+	private float slashSpeed = 15f;
 
 	private float slashLength = 2.0f;
 	private float savedSlashCharge = 0.0f;
@@ -128,6 +130,7 @@ public class PlayerController : MonoBehaviour
 		}
 		float bgFactor = (slashChargeMax - savedSlashCharge) / slashChargeMax;
 		spriteR.color = new Color (1f, bgFactor, bgFactor, 1f);
+		Time.timeScale = Mathf.Min(bgFactor * 2, 1);
 
 		//TODO Fix this later...
 		/*RaycastHit2D[] hits = Physics2D.RaycastAll (transform.position, slashDir.normalized, slashLength);
