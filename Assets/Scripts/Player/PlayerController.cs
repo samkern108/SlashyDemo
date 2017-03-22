@@ -26,19 +26,16 @@ public class PlayerController : MonoBehaviour
 			vAxis = InputWrapper.GetVerticalAxis ();
 			hAxis = InputWrapper.GetHorizontalAxis ();
 
-			if (chargingSlash) {
-				ChargeSlash ();
-			}
+			if (chargingSlash) ChargeSlash ();
 				
 			Linecasts ();
 
-			if (savedSlashCharge > 0) {
-				ApplySlashDistance ();
-			} else {
+			if (savedSlashCharge > 0) ApplySlashDistance ();
+			else {
 				Move ();
-				if (Input.GetKeyDown (KeyCode.Space))
+				if (Input.GetKeyDown (KeyCode.Space)) 
 					BeginSlash ();
-				if (Input.GetKeyUp (KeyCode.Space) && chargingSlash)
+				if (Input.GetKeyUp (KeyCode.Space) && chargingSlash) 
 					ReleaseSlash ();
 			}
 		}
@@ -51,14 +48,11 @@ public class PlayerController : MonoBehaviour
 		if (vAxis == 0 && hAxis == 0)
 			return;
 
-		/*float angle = Mathf.Atan2(vAxis, hAxis) * Mathf.Rad2Deg;
-		transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);*/
-
 		float moveSpeed = chargingSlash ? walkSpeed : runSpeed;
 
 		Vector3 moveDir = new Vector3 (hAxis, vAxis);
-
-		transform.position += moveDir * moveSpeed * Time.deltaTime;
+		Vector3 newPosition = transform.position + moveDir * moveSpeed * Time.deltaTime;
+		transform.position = PlayerCamera.WrapWithinCameraBounds (newPosition);
 
 		// Smoothly rotate to face direction
 		Rotate(moveDir, false);
@@ -97,7 +91,7 @@ public class PlayerController : MonoBehaviour
 		Vector3 slashVector = transform.position + slashCharge * transform.up;
 
 		slashLine.SetPosition (0, transform.position);
-		slashLine.SetPosition(1, slashVector);
+		slashLine.SetPosition(1, PlayerCamera.WrapWithinCameraBounds(slashVector));
 	}
 
 	private void BeginSlash() {
@@ -124,11 +118,11 @@ public class PlayerController : MonoBehaviour
 	private void ApplySlashDistance() {
 		Vector3 slashIncrement = slashDir * Time.deltaTime * slashSpeed;
 		if (savedSlashCharge <= slashIncrement.magnitude) {
-			transform.position += savedSlashCharge * slashDir;
+			transform.position = PlayerCamera.WrapWithinCameraBounds (transform.position + savedSlashCharge * slashDir);
 			savedSlashCharge = 0;
 			slashLine.enabled = false;
 		} else {
-			transform.position += slashIncrement;
+			transform.position = PlayerCamera.WrapWithinCameraBounds (transform.position + slashIncrement);
 			savedSlashCharge -= slashIncrement.magnitude;
 			slashLine.SetPosition(0,transform.position);
 		}

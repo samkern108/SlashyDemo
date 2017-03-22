@@ -7,6 +7,8 @@ public class PlayerCamera : MonoBehaviour {
 	private static GameObject hero;
 
 	public void Start() {
+		// Hacky
+		thisCamera = Camera.main;
 		hero = GameObject.Find ("Hero");
 	}
 
@@ -16,6 +18,41 @@ public class PlayerCamera : MonoBehaviour {
 			newPosition.z = -10;
 		}
 		//this.transform.position = newPosition;
+	}
+
+	public static Vector3 WrapWithinCameraBounds(Vector3 newPosition) {
+		if (newPosition.x < BoundsMin ().x)
+			newPosition.x = BoundsMax ().x;
+		else if (newPosition.x > BoundsMax ().x)
+			newPosition.x = BoundsMin ().x;
+
+		if (newPosition.y < BoundsMin ().y)
+			newPosition.y = BoundsMax ().y;
+		else if (newPosition.y > BoundsMax ().y)
+			newPosition.y = BoundsMin ().y;
+
+		return newPosition;
+	}
+
+	public static Vector2 BoundsMin()
+	{
+		return (Vector2)thisCamera.transform.position - Extents();
+	}
+
+	public static Vector2 BoundsMax()
+	{
+		return (Vector2)thisCamera.transform.position + Extents();
+	}
+
+	public static Vector2 Extents()
+	{
+		if (thisCamera.orthographic)
+			return new Vector2(thisCamera.orthographicSize * Screen.width/Screen.height, thisCamera.orthographicSize);
+		else
+		{
+			Debug.LogError("Camera is not orthographic!", thisCamera);
+			return new Vector2();
+		}
 	}
 
 	/*public SpriteRenderer background;
