@@ -20,6 +20,10 @@ public class PlayerCamera : MonoBehaviour {
 		//this.transform.position = newPosition;
 	}
 
+	public static bool PositionOutsideBounds(Vector3 newPosition) {
+		return (newPosition.x < BoundsMin ().x) || (newPosition.x > BoundsMax ().x) || (newPosition.y < BoundsMin ().y) || (newPosition.y > BoundsMax ().y);
+	}
+
 	public static Vector3 WrapWithinCameraBounds(Vector3 newPosition) {
 		if (newPosition.x < BoundsMin ().x)
 			newPosition.x = BoundsMax ().x;
@@ -30,6 +34,20 @@ public class PlayerCamera : MonoBehaviour {
 			newPosition.y = BoundsMax ().y;
 		else if (newPosition.y > BoundsMax ().y)
 			newPosition.y = BoundsMin ().y;
+
+		return newPosition;
+	}
+
+	public static Vector3 GetVectorToCameraBounds(Vector3 newPosition) {
+		if (newPosition.x < BoundsMin ().x)
+			newPosition.x = BoundsMin ().x;
+		else if (newPosition.x > BoundsMax ().x)
+			newPosition.x = BoundsMax ().x;
+
+		if (newPosition.y < BoundsMin ().y)
+			newPosition.y = BoundsMin ().y;
+		else if (newPosition.y > BoundsMax ().y)
+			newPosition.y = BoundsMax ().y;
 
 		return newPosition;
 	}

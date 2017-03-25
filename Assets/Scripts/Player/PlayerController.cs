@@ -7,15 +7,17 @@ public class PlayerController : MonoBehaviour
 	public static Transform hero;
 	private float hAxis, vAxis;
 
-	private LineRenderer slashLine;
+	private LineRenderer slashLine, slashLineWrap;
 	private SpriteRenderer spriteR;
 
 	void Start()
 	{
 		hero = this.transform;
-		slashLine = GetComponentInChildren <LineRenderer>();
+		slashLine = transform.FindChild ("SlashLine").GetComponent<LineRenderer>();
+		slashLineWrap = transform.FindChild ("SlashLineWrap").GetComponent<LineRenderer>();
 		spriteR = GetComponent<SpriteRenderer> ();
 		slashLine.enabled = false;
+		slashLineWrap.enabled = false;
 	}
 
 	//## UPDATE ##//
@@ -76,11 +78,18 @@ public class PlayerController : MonoBehaviour
 	{
 	}
 
+	private bool chargingSlash = false;
+
 	private float slashCharge;
 	private float slashChargeRate = 10f;
 	private float slashChargeMax = 10f;
 	private float slashChargeBase = .2f;
-	private bool chargingSlash = false;
+
+	private float slashSpeed = 15f;
+
+	private Vector3 slashDir;
+	private float slashLength = 2.0f;
+	private float savedSlashCharge = 0.0f;
 
 	private void ChargeSlash() {
 		slashCharge = Mathf.Min(slashCharge + Time.deltaTime * slashChargeRate, slashChargeMax);
@@ -91,7 +100,15 @@ public class PlayerController : MonoBehaviour
 		Vector3 slashVector = transform.position + slashCharge * transform.up;
 
 		slashLine.SetPosition (0, transform.position);
-		slashLine.SetPosition(1, PlayerCamera.WrapWithinCameraBounds(slashVector));
+		slashLine.SetPosition (1, slashVector);
+	
+		if (PlayerCamera.PositionOutsideBounds(slashVector)) {
+			if(!slashLineWrap.enabled) slashLineWrap.enabled = true;
+
+			slashLineWrap.SetPosition (0, PlayerCamera.WrapWithinCameraBounds (slashVector));
+			slashLineWrap.SetPosition (1, PlayerCamera.WrapWithinCameraBounds (slashVector) + (slashVector - PlayerCamera.GetVectorToCameraBounds (slashVector)));
+		} 
+		else if(slashLineWrap.enabled) slashLineWrap.enabled = false;
 
 		Time.timeScale = Mathf.Max(bgFactor * .16f, .4f);
 	}
@@ -111,22 +128,27 @@ public class PlayerController : MonoBehaviour
 		slashCharge = 0.0f;
 	}
 
-	private Vector3 slashDir;
-	private float slashSpeed = 15f;
-
-	private float slashLength = 2.0f;
-	private float savedSlashCharge = 0.0f;
-
 	private void ApplySlashDistance() {
 		Vector3 slashIncrement = slashDir * Time.deltaTime * slashSpeed;
 		if (savedSlashCharge <= slashIncrement.magnitude) {
 			transform.position = PlayerCamera.WrapWithinCameraBounds (transform.position + savedSlashCharge * slashDir);
 			savedSlashCharge = 0;
 			slashLine.enabled = false;
+			slashLineWrap.enabled = false;
 		} else {
-			transform.position = PlayerCamera.WrapWithinCameraBounds (transform.position + slashIncrement);
+			if (PlayerCamera.PositionOutsideBounds (transform.position + slashIncrement)) {
+				slashLine.enabled = false;
+				transform.position = PlayerCamera.WrapWithinCameraBounds (transform.position + slashIncrement);
+			} else {
+				transform.position += slashIncrement;
+			}
+			if (slashLine.enabled) {
+				slashLine.SetPosition (0, transform.position);
+			} else {
+				slashLineWrap.SetPosition (0, transform.position);
+			}
+
 			savedSlashCharge -= slashIncrement.magnitude;
-			slashLine.SetPosition(0,transform.position);
 		}
 		float bgFactor = (slashChargeMax - savedSlashCharge) / slashChargeMax;
 		spriteR.color = new Color (1f, bgFactor, bgFactor, 1f);
