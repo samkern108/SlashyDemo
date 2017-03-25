@@ -15,6 +15,11 @@ public class Projectile : MonoBehaviour {
 		transform.position += moveDir * moveSpeed * Time.deltaTime;
 	}
 
+	public void OnTriggerEnter2D(Collider2D collider) {
+		if (LayerMask.LayerToName (collider.gameObject.layer) == "Impassable")
+			Destroy (this.gameObject);
+	}
+
 	// Destroy the missile when no camera can see it any longer.
 	public void OnBecameInvisible() {
 		Destroy (this.gameObject);
