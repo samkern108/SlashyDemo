@@ -47,7 +47,6 @@ public static class Screenshake {
 		float time = x + y;
 
 		while (Time.time - time <= startTime) {
-			Debug.Log (time + "  " + (Time.time - time) + "  " + startTime);
 			float quakeAmtX = UnityEngine.Random.value * Mathf.Sin(x)*2 - x;
 			float quakeAmtY = UnityEngine.Random.value*Mathf.Sin(y)*2 - y;
 

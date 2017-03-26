@@ -20,6 +20,8 @@ public class PlayerController : MonoBehaviour
 		slashLineWrap.enabled = false;
 	}
 
+	private static Vector3 newPosition;
+
 	//## UPDATE ##//
 	void Update () 
 	{
@@ -29,10 +31,9 @@ public class PlayerController : MonoBehaviour
 			hAxis = InputWrapper.GetHorizontalAxis ();
 
 			if (chargingSlash) ChargeSlash ();
-				
-			Linecasts ();
 
-			if (savedSlashCharge > 0) ApplySlashDistance ();
+			if (savedSlashCharge > 0) 
+				ApplySlashDistance();
 			else {
 				Move ();
 				if (Input.GetKeyDown (KeyCode.Space)) 
@@ -54,10 +55,11 @@ public class PlayerController : MonoBehaviour
 
 		Vector3 moveDir = new Vector3 (hAxis, vAxis);
 		Vector3 newPosition = transform.position + moveDir * moveSpeed * Time.deltaTime;
-		transform.position = PlayerCamera.WrapWithinCameraBounds (newPosition);
 
 		// Smoothly rotate to face direction
 		Rotate(moveDir, false);
+		
+		transform.position = MoveRaycast(PlayerCamera.WrapWithinCameraBounds (newPosition));
 	}
 
 	private void Rotate(Vector3 dir, bool instant) {
@@ -73,9 +75,31 @@ public class PlayerController : MonoBehaviour
 			transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 8.0f);
 	}
 
-	// Maybe I can get LinecastNonAlloc to work someday.
-	private void Linecasts()
+	private static RaycastHit2D hit;
+		
+	private Vector3 MoveRaycast(Vector3 position)
 	{
+		// Player sprite length is about .5f, so we give it little more space.
+		hit = Physics2D.Raycast (position, transform.up, .35f, 1 << LayerMask.NameToLayer("Impassable"));
+		if(!hit)
+			hit = Physics2D.Raycast (position, transform.up, .35f, 1 << LayerMask.NameToLayer("Debris"));
+
+		if(hit)
+			position = hit.point - ((Vector2)transform.up * .35f);
+
+		return position;
+	}
+
+	private Vector3 SlashLinecast(Vector3 position, Vector3 newPosition)
+	{
+		// Player sprite length is about .5f, so we give it little more space.
+		hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer("Impassable"));
+		if (hit) {
+			KillSlashEarly ();
+			newPosition = hit.point - ((Vector2)transform.up * .35f);
+		}
+
+		return newPosition;
 	}
 
 	private bool chargingSlash = false;
@@ -100,7 +124,7 @@ public class PlayerController : MonoBehaviour
 		Vector3 slashVector = transform.position + slashCharge * transform.up;
 
 		slashLine.SetPosition (0, transform.position);
-		slashLine.SetPosition (1, slashVector);
+		slashLine.SetPosition (1, SlashLineLinecast(transform.position, slashVector));
 	
 		if (PlayerCamera.PositionOutsideBounds(slashVector)) {
 			if(!slashLineWrap.enabled) slashLineWrap.enabled = true;
@@ -113,6 +137,16 @@ public class PlayerController : MonoBehaviour
 		Time.timeScale = Mathf.Max(bgFactor * .16f, .4f);
 
 		Camera.main.SingleShake (slashCharge/80, slashCharge/80);
+	}
+
+	private Vector3 SlashLineLinecast(Vector3 startLine, Vector3 endLine)
+	{
+		// Player sprite length is about .5f, so we give it little more space.
+		hit = Physics2D.Linecast (startLine, endLine, 1 << LayerMask.NameToLayer("Impassable"));
+		if (hit) {
+			endLine = hit.point;
+		}
+		return endLine;
 	}
 
 	private void BeginSlash() {
@@ -131,23 +165,27 @@ public class PlayerController : MonoBehaviour
 
 		Camera.main.StartShake (slashCharge/30, slashCharge/30);
 		slashCharge = 0.0f;
+		gameObject.layer = LayerMask.NameToLayer ("SlashingHero");
 	}
 
 	private void ApplySlashDistance() {
+		Vector3 newPosition;
 		Vector3 slashIncrement = slashDir * Time.deltaTime * slashSpeed;
 		if (savedSlashCharge <= slashIncrement.magnitude) {
-			transform.position = PlayerCamera.WrapWithinCameraBounds (transform.position + savedSlashCharge * slashDir);
+			newPosition = PlayerCamera.WrapWithinCameraBounds (transform.position + savedSlashCharge * slashDir);
 			savedSlashCharge = 0;
 			slashLine.enabled = false;
 			slashLineWrap.enabled = false;
 			Camera.main.ReturnScreen ();
-			return;
+			gameObject.layer = LayerMask.NameToLayer ("Hero");
+			transform.position = SlashLinecast(transform.position, newPosition);
 		} else {
 			if (PlayerCamera.PositionOutsideBounds (transform.position + slashIncrement)) {
 				slashLine.enabled = false;
+				// Do I need to do a raycast here? ... probs not, right?
 				transform.position = PlayerCamera.WrapWithinCameraBounds (transform.position + slashIncrement);
 			} else {
-				transform.position += slashIncrement;
+				transform.position = SlashLinecast(transform.position, transform.position + slashIncrement);
 			}
 			if (slashLine.enabled) {
 				slashLine.SetPosition (0, transform.position);
@@ -161,16 +199,15 @@ public class PlayerController : MonoBehaviour
 		float bgFactor = (slashChargeMax - savedSlashCharge) / slashChargeMax;
 		spriteR.color = new Color (1f, bgFactor, bgFactor, 1f);
 		Time.timeScale = Mathf.Min(bgFactor * 2, 1);
+	}
 
-		//TODO Fix this later...
-		/*RaycastHit2D[] hits = Physics2D.RaycastAll (transform.position, slashDir.normalized, slashLength);
-
-		foreach(RaycastHit2D hit in hits) {
-			Slashable slash = hit.collider.GetComponent <Slashable> ();
-			if (slash)
-				// We should pass the slash itself so enemies know how hard they got slashed.
-				slash.Slashed ();
-		}*/
+	private void KillSlashEarly() {
+		savedSlashCharge = 0;
+		slashLine.enabled = false;
+		slashLineWrap.enabled = false;
+		Camera.main.ReturnScreen ();
+		spriteR.color = Color.white;
+		Time.timeScale = 1.0f;
 	}
 
 	public void OnCollisionEnter2D(Collision2D collision) {
