@@ -14,6 +14,8 @@ public class LevelMaster : MonoBehaviour {
 	void Start () {
 		IOManager.Initialize ();
 
+		levelCap = ResourceLoader.NumberOfLevels ();
+
 		levelContainer = transform.FindChild ("LevelContainer").gameObject;
 		heroPrefab = ResourceLoader.LoadPrefab ("Hero");
 	}

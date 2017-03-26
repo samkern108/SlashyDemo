@@ -111,9 +111,12 @@ public class PlayerController : MonoBehaviour
 		else if(slashLineWrap.enabled) slashLineWrap.enabled = false;
 
 		Time.timeScale = Mathf.Max(bgFactor * .16f, .4f);
+
+		Camera.main.SingleShake (slashCharge/80, slashCharge/80);
 	}
 
 	private void BeginSlash() {
+		Camera.main.LockCamera ();
 		chargingSlash = true;
 		slashCharge = slashChargeBase;
 		slashLine.enabled = true;
@@ -125,6 +128,8 @@ public class PlayerController : MonoBehaviour
 		chargingSlash = false;
 		slashDir = transform.up;
 		savedSlashCharge = slashCharge;
+
+		Camera.main.StartShake (slashCharge/30, slashCharge/30);
 		slashCharge = 0.0f;
 	}
 
@@ -135,6 +140,8 @@ public class PlayerController : MonoBehaviour
 			savedSlashCharge = 0;
 			slashLine.enabled = false;
 			slashLineWrap.enabled = false;
+			Camera.main.ReturnScreen ();
+			return;
 		} else {
 			if (PlayerCamera.PositionOutsideBounds (transform.position + slashIncrement)) {
 				slashLine.enabled = false;
@@ -149,6 +156,7 @@ public class PlayerController : MonoBehaviour
 			}
 
 			savedSlashCharge -= slashIncrement.magnitude;
+			Camera.main.SingleShake (savedSlashCharge/10, savedSlashCharge/10);
 		}
 		float bgFactor = (slashChargeMax - savedSlashCharge) / slashChargeMax;
 		spriteR.color = new Color (1f, bgFactor, bgFactor, 1f);

@@ -12,6 +12,12 @@ public class ResourceLoader : MonoBehaviour {
 		return Resources.Load <GameObject>(pathToPrefabs + name);
 	}
 
+	public static int NumberOfLevels()
+	{
+		string[] files = System.IO.Directory.GetFiles (Application.dataPath + "/Resources/" + pathToLevels, "*.prefab", SearchOption.AllDirectories);
+		return files.Length;
+	}
+
 	public static GameObject LoadLevelPrefab(int level)
 	{
 		return Resources.Load<GameObject> (pathToLevels + "Level " + level);
