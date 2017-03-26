@@ -222,11 +222,11 @@ public class PlayerController : MonoBehaviour
 
 	public void OnTriggerEnter2D(Collider2D collider) {
 		if (LayerMask.LayerToName (collider.gameObject.layer) == "Projectile") {
-			if (savedSlashCharge <= 0.0f) {
+			/*if (savedSlashCharge <= 0.0f) {
 				Die ();
-			} else {
-				StartCoroutine ("ColorFadeIn", Color.blue);
-			}
+			else
+				StartCoroutine ("ColorFadeIn", Color.blue);*/
+			Die ();
 		}
 	}
 
