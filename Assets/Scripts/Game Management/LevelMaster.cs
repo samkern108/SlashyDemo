@@ -80,7 +80,7 @@ public class LevelMaster : MonoBehaviour {
 		LoadNextLevel ();
 	}
 
-	public static void Respawn() {
+	public static void Retry() {
 		Notifications.self.SendRestartNotification ();
 		InitHero ();
 		level = Mathf.Max(level - 2, 0);
