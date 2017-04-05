@@ -253,6 +253,10 @@ public class PlayerController : MonoBehaviour
 	{
 		Time.timeScale = 1;
 		LevelMaster.Defeat();
+
+		GameObject explosion = Instantiate (ParticleManager.playerExplosion);
+		explosion.transform.position = transform.position;
+
 		Destroy (this.gameObject);
 	}
 } 
