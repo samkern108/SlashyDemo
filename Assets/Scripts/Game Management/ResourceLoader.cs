@@ -5,11 +5,17 @@ using System.IO;
 public class ResourceLoader : MonoBehaviour {
 
 	private static string pathToPrefabs = "Prefabs/";
+	private static string pathToParticles = "Prefabs/Particles/";
 	private static string pathToLevels = "Prefabs/Levels/";
 
 	public static GameObject LoadPrefab(string name)
 	{
 		return Resources.Load <GameObject>(pathToPrefabs + name);
+	}
+
+	public static GameObject LoadParticle(string name)
+	{
+		return Resources.Load <GameObject>(pathToParticles + name);
 	}
 
 	public static int NumberOfLevels()

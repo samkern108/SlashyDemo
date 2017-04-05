@@ -13,6 +13,7 @@ public class LevelMaster : MonoBehaviour {
 
 	void Start () {
 		IOManager.Initialize ();
+		ParticleManager.Initialize ();
 
 		levelCap = ResourceLoader.NumberOfLevels ();
 

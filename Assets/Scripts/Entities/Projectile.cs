@@ -21,6 +21,11 @@ public class Projectile : MonoBehaviour {
 	}
 
 	private void Explode() {
+		GameObject explosion = Instantiate (ParticleManager.projectileExplosion);
+		explosion.transform.position = transform.position - (moveDir * GetComponent<PolygonCollider2D>().bounds.size.x/2);
+
+		float angle = Mathf.Atan2(moveDir.y, moveDir.x) * Mathf.Rad2Deg + 90 + Random.Range(-10, 10);
+		explosion.transform.RotateAround (transform.position, Vector3.forward, angle);
 		
 		Destroy (this.gameObject);
 	}
