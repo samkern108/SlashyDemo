@@ -7,12 +7,19 @@ public class PlayerController : MonoBehaviour
 	public static Transform hero;
 	private float hAxis, vAxis;
 
+	private static GameObject slashOutline;
+	private Vector3 slashOutlineScale;
+
 	private LineRenderer slashLine, slashLineWrap;
 	private SpriteRenderer spriteR;
 
 	void Start()
 	{
 		hero = this.transform;
+		slashOutline = transform.FindChild ("SlashOutline").gameObject;
+		slashOutlineScale = slashOutline.transform.localScale;
+		slashOutline.SetActive (false);
+
 		slashLine = transform.FindChild ("SlashLine").GetComponent<LineRenderer>();
 		slashLineWrap = transform.FindChild ("SlashLineWrap").GetComponent<LineRenderer>();
 		spriteR = GetComponent<SpriteRenderer> ();
@@ -136,6 +143,12 @@ public class PlayerController : MonoBehaviour
 
 		slashLine.SetPosition (0, transform.position);
 		slashLine.SetPosition (1, SlashLineLinecast(transform.position, slashVector));
+
+		if (slashOutline.activeSelf) {
+			slashOutline.transform.localScale = slashOutlineScale * bgFactor;
+			if (slashOutline.transform.localScale.y <= 0)
+				slashOutline.SetActive (false);
+		}
 	
 		if (PlayerCamera.PositionOutsideBounds(slashVector)) {
 			if(!slashLineWrap.enabled) slashLineWrap.enabled = true;
@@ -167,10 +180,15 @@ public class PlayerController : MonoBehaviour
 		slashLine.enabled = true;
 		slashLine.SetPosition (0, transform.position);
 		slashLine.SetPosition (1, transform.position);
+
+		slashOutline.SetActive (true);
 	}
 
 	private void ReleaseSlash() {
 		AudioManager.PlayPlayerBoostRelease ();
+
+		slashOutline.transform.localScale = slashOutlineScale;
+		slashOutline.SetActive (false);
 
 		chargingSlash = false;
 		slashDir = transform.up;
