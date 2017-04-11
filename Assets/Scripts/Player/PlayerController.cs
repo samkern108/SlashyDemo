@@ -71,11 +71,15 @@ public class PlayerController : MonoBehaviour
 		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
 		if (instant)
 			transform.rotation = q;
-		else
-			transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 8.0f);
+		else {
+			transform.rotation = Quaternion.Slerp (transform.rotation, q, Time.deltaTime * 8.0f);
+			//if (Quaternion.Angle (transform.rotation, q) > 50.0f)
+			//	AudioManager.PlayPlayerTurn ();
+		}
 	}
 
 	private static RaycastHit2D hit;
+	private bool alreadyColliding = false;
 		
 	private Vector3 MoveRaycast(Vector3 position)
 	{
@@ -84,8 +88,13 @@ public class PlayerController : MonoBehaviour
 		if(!hit)
 			hit = Physics2D.Raycast (position, transform.up, .35f, 1 << LayerMask.NameToLayer("Debris"));
 
-		if(hit)
+		if (hit) {
+			if(!alreadyColliding) AudioManager.PlayPlayerWallHit ();
 			position = hit.point - ((Vector2)transform.up * .35f);
+			alreadyColliding = true;
+		} else {
+			alreadyColliding = false;
+		}
 
 		return position;
 	}
@@ -95,8 +104,10 @@ public class PlayerController : MonoBehaviour
 		// Player sprite length is about .5f, so we give it little more space.
 		hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer("Impassable"));
 		if (hit) {
+			if(!alreadyColliding) AudioManager.PlayPlayerWallHit ();
 			KillSlashEarly ();
 			newPosition = hit.point - ((Vector2)transform.up * .35f);
+			alreadyColliding = true;
 		}
 
 		return newPosition;
@@ -159,6 +170,8 @@ public class PlayerController : MonoBehaviour
 	}
 
 	private void ReleaseSlash() {
+		AudioManager.PlayPlayerBoostRelease ();
+
 		chargingSlash = false;
 		slashDir = transform.up;
 		savedSlashCharge = slashCharge;
@@ -251,6 +264,8 @@ public class PlayerController : MonoBehaviour
 
 	private void Die()
 	{
+		AudioManager.PlayPlayerDeath ();
+
 		Time.timeScale = 1;
 		LevelMaster.Defeat();
 

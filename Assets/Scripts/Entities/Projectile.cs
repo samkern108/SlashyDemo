@@ -22,10 +22,10 @@ public class Projectile : MonoBehaviour {
 
 	private void Explode() {
 		GameObject explosion = Instantiate (ParticleManager.projectileExplosion);
-		explosion.transform.position = transform.position - (moveDir * GetComponent<PolygonCollider2D>().bounds.size.x/2);
+		explosion.transform.position = transform.position - (moveDir * GetComponent<PolygonCollider2D>().bounds.size.x);
 
-		float angle = Mathf.Atan2(moveDir.y, moveDir.x) * Mathf.Rad2Deg + 90 + Random.Range(-10, 10);
-		explosion.transform.RotateAround (transform.position, Vector3.forward, angle);
+		float angle = Mathf.Atan2 (moveDir.y, moveDir.x) * Mathf.Rad2Deg - 90;
+		explosion.transform.RotateAround (transform.position, -Vector3.forward, angle);
 		
 		Destroy (this.gameObject);
 	}
@@ -37,6 +37,5 @@ public class Projectile : MonoBehaviour {
 
 	public void GameEnd(bool victory) {
 		moveSpeed = 0f;
-		// If we win, the projectile should explode. :)
 	}
 }

@@ -14,6 +14,7 @@ public class LevelMaster : MonoBehaviour {
 	void Start () {
 		IOManager.Initialize ();
 		ParticleManager.Initialize ();
+		AudioManager.Initialize ();
 
 		levelCap = ResourceLoader.NumberOfLevels ();
 
