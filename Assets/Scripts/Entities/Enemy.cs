@@ -13,7 +13,7 @@ public class Enemy : Slashable {
 		if (!missilePrefab)
 			missilePrefab = ResourceLoader.LoadPrefab ("Projectile");
 
-		InvokeRepeating ("Shoot", shootTimer, shootTimer);
+		InvokeRepeating ("Shoot", shootTimer + Random.Range(.1f, .5f), shootTimer);
 	}
 
 	public override void Slashed() {

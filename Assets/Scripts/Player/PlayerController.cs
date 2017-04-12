@@ -55,7 +55,9 @@ public class PlayerController : MonoBehaviour
 	private float runSpeed = 4f, walkSpeed = 1f;
 
 	private void Move() {
-		if (vAxis == 0 && hAxis == 0)
+		if (!chargingSlash && vAxis == 0 && hAxis == 0)
+			return;
+		if (chargingSlash && Input.GetAxisRaw ("Horizontal") == 0 && Input.GetAxisRaw ("Vertical") == 0)
 			return;
 
 		float moveSpeed = chargingSlash ? walkSpeed : runSpeed;
@@ -64,7 +66,8 @@ public class PlayerController : MonoBehaviour
 		Vector3 newPosition = transform.position + moveDir * moveSpeed * Time.deltaTime;
 
 		// Smoothly rotate to face direction
-		Rotate(moveDir, false);
+		// TODO(samkern): Adjust this constant and input axis gravity to tune movement
+		if(new Vector2(hAxis, vAxis).magnitude > .5f) Rotate(moveDir, false);
 		
 		transform.position = MoveRaycast(PlayerCamera.WrapWithinCameraBounds (newPosition));
 	}
@@ -133,6 +136,17 @@ public class PlayerController : MonoBehaviour
 	private float slashLength = 2.0f;
 	private float savedSlashCharge = 0.0f;
 
+	private void BeginSlash() {
+		Camera.main.LockCamera ();
+		chargingSlash = true;
+		slashCharge = slashChargeBase;
+		slashLine.enabled = true;
+		slashLine.SetPosition (0, transform.position);
+		slashLine.SetPosition (1, transform.position);
+
+		slashOutline.SetActive (true);
+	}
+
 	private void ChargeSlash() {
 		slashCharge = Mathf.Min(slashCharge + Time.deltaTime * slashChargeRate, slashChargeMax);
 		float bgFactor = (slashChargeMax - slashCharge)/slashChargeMax;
@@ -171,17 +185,6 @@ public class PlayerController : MonoBehaviour
 			endLine = hit.point;
 		}
 		return endLine;
-	}
-
-	private void BeginSlash() {
-		Camera.main.LockCamera ();
-		chargingSlash = true;
-		slashCharge = slashChargeBase;
-		slashLine.enabled = true;
-		slashLine.SetPosition (0, transform.position);
-		slashLine.SetPosition (1, transform.position);
-
-		slashOutline.SetActive (true);
 	}
 
 	private void ReleaseSlash() {

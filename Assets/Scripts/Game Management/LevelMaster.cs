@@ -37,7 +37,6 @@ public class LevelMaster : MonoBehaviour {
 
 		Notifications.self.SendLoadLevelNotification(level);
 
-		UIManager.self.ShowLevelNumber (level);
 		Destroy (levelContainer);
 		levelContainer = Instantiate(ResourceLoader.LoadLevelPrefab (level), levelContainer.transform.parent);
 	}
