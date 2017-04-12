@@ -5,7 +5,7 @@ using UnityEngine;
 public class SlashTutorial : MonoBehaviour {
 
 	void Start () {
-		Invoke ("DisplayTutorialText", 5.0f);
+		Invoke ("DisplayTutorialText", 3.0f);
 	}
 	
 	private void DisplayTutorialText () {
