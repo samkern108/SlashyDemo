@@ -32,16 +32,16 @@ public class AudioManager : MonoBehaviour {
 		dotPickup = ResourceLoader.LoadAudioClip ("Dot Pickup");
 	}
 
-	private static bool resetPickup = false;
+	private static bool resetPickup = true;
 		
 	public void PlayDotPickup() {
 		if (resetPickup) {
 			resetPickup = false;
-			dotAS.pitch = 1f;
+			dotAS.pitch = .55f;
 		}
 
 		dotAS.PlayOneShot (dotPickup);
-		dotAS.pitch += .2f;
+		dotAS.pitch += .25f;
 	}
 		
 	public void LevelLoaded(int level) {
