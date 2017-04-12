@@ -8,6 +8,7 @@ public class UIManager : MonoBehaviour {
 	private static GameObject menu;
 
 	private static Text levelText, blueDotText;
+	private static Text pressSpaceToSlash;
 	private static GameObject gameOverPanel, victoryPanel;
 
 	public void Awake()
@@ -18,6 +19,8 @@ public class UIManager : MonoBehaviour {
 		blueDotText = transform.FindChild ("Blue Dots").GetComponent<Text>();
 		gameOverPanel = transform.FindChild ("Game Over").gameObject;
 		victoryPanel = transform.FindChild ("Victory").gameObject;
+
+		pressSpaceToSlash = transform.FindChild("Press Space To Slash").GetComponent<Text>();
 	}
 
 	public void Update()
@@ -37,6 +40,17 @@ public class UIManager : MonoBehaviour {
 		blueDotText.text = blueDots + "";
 	}
 
+	public void DisplaySpaceToSlash(bool display)
+	{
+		pressSpaceToSlash.gameObject.SetActive (display);
+		if(display) pressSpaceToSlash.Flicker ();
+	}
+
+	public void HideSpaceToSlash()
+	{
+		pressSpaceToSlash.gameObject.SetActive (false);
+	}
+
 	// Notifications
 
 	public void GameEnd(bool victory) {
@@ -49,5 +63,9 @@ public class UIManager : MonoBehaviour {
 	public void Restart() {
 		gameOverPanel.SetActive (false);
 		victoryPanel.SetActive (false);
+	}
+
+	public void LevelLoaded(int level) {
+		UIManager.self.ShowLevelNumber (level);
 	}
 }

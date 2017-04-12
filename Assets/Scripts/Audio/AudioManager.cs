@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class AudioManager : MonoBehaviour {
 
+	public static AudioManager instance;
+
 	public static AudioClip projectileShoot, projectileExplode, 
 	playerBoostCharge, playerBoostRelease, playerWallHit, playerTurn, playerDeath,
 	levelComplete, gameStart, 
@@ -12,6 +14,7 @@ public class AudioManager : MonoBehaviour {
 	public static AudioSource dotAS, playerAS;
 
 	public void Awake() {
+		instance = this;
 		dotAS = transform.FindChild ("DotAS").GetComponent<AudioSource>();
 		playerAS = transform.FindChild ("PlayerAS").GetComponent<AudioSource>();
 	}
@@ -29,8 +32,20 @@ public class AudioManager : MonoBehaviour {
 		dotPickup = ResourceLoader.LoadAudioClip ("Dot Pickup");
 	}
 
-	public static void PlayDotPickup() {
+	private static bool resetPickup = false;
+		
+	public void PlayDotPickup() {
+		if (resetPickup) {
+			resetPickup = false;
+			dotAS.pitch = 1f;
+		}
+
 		dotAS.PlayOneShot (dotPickup);
+		dotAS.pitch += .2f;
+	}
+		
+	public void LevelLoaded(int level) {
+		resetPickup = true;
 	}
 
 	public static void PlayPlayerDeath() {

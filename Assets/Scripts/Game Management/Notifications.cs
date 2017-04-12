@@ -21,4 +21,8 @@ public class Notifications : MonoBehaviour {
 	public void SendRestartNotification() {
 		BroadcastMessage ("Restart");
 	}
+
+	public void SendLoadLevelNotification(int level) {
+		BroadcastMessage ("LevelLoaded", level);
+	}
 }
