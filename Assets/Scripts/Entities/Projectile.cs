@@ -25,7 +25,7 @@ public class Projectile : MonoBehaviour {
 		RaycastHit2D hit = Physics2D.Raycast(transform.position, moveDir,2f, 1 << LayerMask.NameToLayer("Impassable"));
 		if (hit.collider) {
 			GameObject explosion = Instantiate (ParticleManager.projectileExplosion);
-			explosion.transform.position = transform.position - (moveDir * GetComponent<PolygonCollider2D>().bounds.size.x);
+			explosion.transform.position = transform.position - (moveDir * 2 * GetComponent<PolygonCollider2D>().bounds.size.x/3);
 
 			Vector2 reflection = Vector2.Reflect (moveDir, hit.normal);
 			explosion.transform.rotation = Quaternion.LookRotation(reflection,Vector3.up);
