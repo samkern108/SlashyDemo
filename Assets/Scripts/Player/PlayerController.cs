@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
 
 	private static GameObject slashOutline;
 	private Vector3 slashOutlineScale;
+	private Vector3 slashOutlineMaxScale = new Vector3(1.5f, 1.5f, 0);
 
 	private LineRenderer slashLine, slashLineWrap, slashLineCollide;
 	private SpriteRenderer spriteR;
@@ -140,14 +141,13 @@ public class PlayerController : MonoBehaviour
 	private bool chargingSlash = false;
 
 	private float slashCharge;
-	private float slashChargeRate = 10f;
-	private float slashChargeMax = 10f;
+	private float slashChargeRate = 8f;
+	private float slashChargeMax = 6f;
 	private float slashChargeBase = .2f;
 
 	private float slashSpeed = 15f;
 
 	private Vector3 slashDir;
-	private float slashLength = 2.0f;
 	private float savedSlashCharge = 0.0f;
 
 	private void BeginSlash() {
@@ -165,7 +165,17 @@ public class PlayerController : MonoBehaviour
 		slashCharge = Mathf.Min(slashCharge + Time.deltaTime * slashChargeRate, slashChargeMax);
 		float bgFactor = (slashChargeMax - slashCharge)/slashChargeMax;
 		Color color = new Color (1f, bgFactor, bgFactor, 1f);
-		GetComponent<SpriteRenderer> ().color = color;
+		spriteR.color = color;
+
+		if (slashOutline.activeSelf) {
+			slashOutline.transform.localScale = slashOutlineScale + (slashOutlineMaxScale * bgFactor);
+			if (bgFactor <= 0)
+				slashOutline.SetActive (false);
+		}
+
+		Time.timeScale = Mathf.Lerp (.2f,1.0f,bgFactor);
+
+		Camera.main.SingleShake (slashCharge/80, slashCharge/80);
 
 		Vector3 slashVector = transform.position + slashCharge * transform.up;
 
@@ -179,15 +189,7 @@ public class PlayerController : MonoBehaviour
 			slashLineCollide.SetPosition (0, transform.position);
 			slashLineCollide.SetPosition (1, debrisHit);
 		}
-		else if(slashLineCollide.enabled) {
-			slashLineCollide.enabled = false;
-		}
-
-		if (slashOutline.activeSelf) {
-			slashOutline.transform.localScale = slashOutlineScale * bgFactor;
-			if (slashOutline.transform.localScale.y <= 0)
-				slashOutline.SetActive (false);
-		}
+		else if(slashLineCollide.enabled) slashLineCollide.enabled = false;
 	
 		if (PlayerCamera.PositionOutsideBounds(slashVector)) {
 			if(!slashLineWrap.enabled) slashLineWrap.enabled = true;
@@ -196,10 +198,6 @@ public class PlayerController : MonoBehaviour
 			slashLineWrap.SetPosition (1, PlayerCamera.WrapWithinCameraBounds (slashVector) + (slashVector - PlayerCamera.GetVectorToCameraBounds (slashVector)));
 		} 
 		else if(slashLineWrap.enabled) slashLineWrap.enabled = false;
-
-		Time.timeScale = Mathf.Max(bgFactor * .16f, .4f);
-
-		Camera.main.SingleShake (slashCharge/80, slashCharge/80);
 	}
 
 	private Vector3 SlashLineLinecast(Vector3 startLine, Vector3 endLine)
@@ -214,9 +212,8 @@ public class PlayerController : MonoBehaviour
 	private Vector3 SlashLineDebrisLinecast(Vector3 startLine, Vector3 endLine)
 	{
 		hit = Physics2D.Linecast (startLine, endLine, 1 << LayerMask.NameToLayer("Debris"));
-		if (hit && hit.collider.OverlapPoint((Vector2)endLine)) {
+		if (hit && hit.collider.OverlapPoint((Vector2)endLine))
 			return hit.point;
-		}
 		return Vector3.zero;
 	}
 
@@ -230,16 +227,20 @@ public class PlayerController : MonoBehaviour
 		slashDir = transform.up;
 		savedSlashCharge = slashCharge;
 
-		if (slashLineCollide.enabled) {
-			slashLine.enabled = false;
-		}
+		if (slashLineCollide.enabled) slashLine.enabled = false;
 
 		Camera.main.StartShake (slashCharge/30, slashCharge/30);
 		slashCharge = 0.0f;
 		gameObject.layer = LayerMask.NameToLayer ("SlashingHero");
+
+		startSavedSlashCharge = savedSlashCharge;
+		startTimeScale = Time.timeScale;
 	}
 
-	private void ApplySlashDistance() {
+	private float startSavedSlashCharge;
+	private float startTimeScale;
+
+	private void ApplySlashDistance () {
 		Vector3 newPosition;
 		Vector3 slashIncrement = slashDir * Time.deltaTime * slashSpeed;
 		if (savedSlashCharge <= slashIncrement.magnitude) {
@@ -251,27 +252,25 @@ public class PlayerController : MonoBehaviour
 			Camera.main.ReturnScreen ();
 			gameObject.layer = LayerMask.NameToLayer ("Hero");
 			transform.position = SlashLinecast(transform.position, newPosition);
+			Time.timeScale = 1.0f;
 		} else {
 			if (PlayerCamera.PositionOutsideBounds (transform.position + slashIncrement)) {
 				slashLine.enabled = false;
 				// Do I need to do a raycast here? ... probs not, right?
 				transform.position = PlayerCamera.WrapWithinCameraBounds (transform.position + slashIncrement);
-			} else {
+			} else
 				transform.position = SlashLinecast(transform.position, transform.position + slashIncrement);
-			}
-			if (slashLineCollide.enabled)
-				slashLineCollide.SetPosition (0, transform.position);
-			if (slashLine.enabled)
-				slashLine.SetPosition (0, transform.position);
-			else
-				slashLineWrap.SetPosition (0, transform.position);
+
+			if (slashLineCollide.enabled) 	slashLineCollide.SetPosition (0, transform.position);
+			if (slashLine.enabled) 			slashLine.SetPosition (0, transform.position);
+			else  							slashLineWrap.SetPosition (0, transform.position);
 
 			savedSlashCharge -= slashIncrement.magnitude;
 			Camera.main.SingleShake (savedSlashCharge/10, savedSlashCharge/10);
 		}
 		float bgFactor = (slashChargeMax - savedSlashCharge) / slashChargeMax;
 		spriteR.color = new Color (1f, bgFactor, bgFactor, 1f);
-		Time.timeScale = Mathf.Min(bgFactor * 2, 1);
+		Time.timeScale = Mathf.Lerp (startTimeScale,1.0f,((startSavedSlashCharge - savedSlashCharge)/startSavedSlashCharge));
 	}
 
 	private void KillSlashEarly() {
