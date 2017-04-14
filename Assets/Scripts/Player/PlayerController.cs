@@ -86,7 +86,7 @@ public class PlayerController : MonoBehaviour
 		if (instant)
 			transform.rotation = q;
 		else {
-			transform.rotation = Quaternion.Slerp (transform.rotation, q, Time.deltaTime * 8.0f);
+			transform.rotation = Quaternion.Slerp (transform.rotation, q, (Time.unscaledDeltaTime) * 8.0f);
 			//if (Quaternion.Angle (transform.rotation, q) > 50.0f)
 			//	AudioManager.PlayPlayerTurn ();
 		}
@@ -141,7 +141,7 @@ public class PlayerController : MonoBehaviour
 	private bool chargingSlash = false;
 
 	private float slashCharge;
-	private float slashChargeRate = 8f;
+	private float slashChargeRate = 4f;
 	private float slashChargeMax = 6f;
 	private float slashChargeBase = .2f;
 
@@ -162,7 +162,7 @@ public class PlayerController : MonoBehaviour
 	}
 
 	private void ChargeSlash() {
-		slashCharge = Mathf.Min(slashCharge + Time.deltaTime * slashChargeRate, slashChargeMax);
+		slashCharge = Mathf.Min(slashCharge + Time.unscaledDeltaTime * slashChargeRate, slashChargeMax);
 		float bgFactor = (slashChargeMax - slashCharge)/slashChargeMax;
 		Color color = new Color (1f, bgFactor, bgFactor, 1f);
 		spriteR.color = color;
@@ -173,7 +173,9 @@ public class PlayerController : MonoBehaviour
 				slashOutline.SetActive (false);
 		}
 
-		Time.timeScale = Mathf.Lerp (.2f,1.0f,bgFactor);
+		// This is stupid just Lerp properly 
+		Time.timeScale = Mathf.Clamp(Mathf.Lerp (0f,1.0f, bgFactor/2), 0.2f, 1.0f);
+		Time.fixedDeltaTime = 0.02F * Time.timeScale;
 
 		Camera.main.SingleShake (slashCharge/80, slashCharge/80);
 
@@ -242,7 +244,7 @@ public class PlayerController : MonoBehaviour
 
 	private void ApplySlashDistance () {
 		Vector3 newPosition;
-		Vector3 slashIncrement = slashDir * Time.deltaTime * slashSpeed;
+		Vector3 slashIncrement = slashDir * Time.unscaledDeltaTime * slashSpeed;
 		if (savedSlashCharge <= slashIncrement.magnitude) {
 			newPosition = PlayerCamera.WrapWithinCameraBounds (transform.position + savedSlashCharge * slashDir);
 			savedSlashCharge = 0;
@@ -253,6 +255,7 @@ public class PlayerController : MonoBehaviour
 			gameObject.layer = LayerMask.NameToLayer ("Hero");
 			transform.position = SlashLinecast(transform.position, newPosition);
 			Time.timeScale = 1.0f;
+			Time.fixedDeltaTime = 0.02F * Time.timeScale;
 		} else {
 			if (PlayerCamera.PositionOutsideBounds (transform.position + slashIncrement)) {
 				slashLine.enabled = false;
@@ -270,7 +273,8 @@ public class PlayerController : MonoBehaviour
 		}
 		float bgFactor = (slashChargeMax - savedSlashCharge) / slashChargeMax;
 		spriteR.color = new Color (1f, bgFactor, bgFactor, 1f);
-		Time.timeScale = Mathf.Lerp (startTimeScale,1.0f,((startSavedSlashCharge - savedSlashCharge)/startSavedSlashCharge));
+		Time.timeScale = Mathf.Clamp(Mathf.Lerp (startTimeScale,1.0f,((startSavedSlashCharge - (savedSlashCharge/2))/startSavedSlashCharge)), 0.0f, 1.0f);
+		Time.fixedDeltaTime = 0.02F * Time.timeScale;
 	}
 
 	private void KillSlashEarly() {
@@ -281,6 +285,7 @@ public class PlayerController : MonoBehaviour
 		Camera.main.ReturnScreen ();
 		spriteR.color = Color.white;
 		Time.timeScale = 1.0f;
+		Time.fixedDeltaTime = 0.02F * Time.timeScale;
 	}
 
 	public void OnCollisionEnter2D(Collision2D collision) {
@@ -326,7 +331,8 @@ public class PlayerController : MonoBehaviour
 	{
 		AudioManager.PlayPlayerDeath ();
 
-		Time.timeScale = 1;
+		Time.timeScale = 1.0f;
+		Time.fixedDeltaTime = 0.02F * Time.timeScale;
 		LevelMaster.Defeat();
 
 		GameObject explosion = Instantiate (ParticleManager.playerExplosion);
