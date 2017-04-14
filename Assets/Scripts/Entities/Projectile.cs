@@ -21,11 +21,15 @@ public class Projectile : MonoBehaviour {
 	}
 
 	private void Explode() {
-		GameObject explosion = Instantiate (ParticleManager.projectileExplosion);
-		explosion.transform.position = transform.position - (moveDir * GetComponent<PolygonCollider2D>().bounds.size.x);
+		// Make sure we're including all things projectiles can hit
+		RaycastHit2D hit = Physics2D.Raycast(transform.position, moveDir,2f, 1 << LayerMask.NameToLayer("Impassable"));
+		if (hit.collider) {
+			GameObject explosion = Instantiate (ParticleManager.projectileExplosion);
+			explosion.transform.position = transform.position - (moveDir * GetComponent<PolygonCollider2D>().bounds.size.x);
 
-		float angle = Mathf.Atan2 (moveDir.y, moveDir.x) * Mathf.Rad2Deg - 90;
-		explosion.transform.RotateAround (transform.position, -Vector3.forward, angle);
+			Vector2 reflection = Vector2.Reflect (moveDir, hit.normal);
+			explosion.transform.rotation = Quaternion.LookRotation(reflection,Vector3.up);
+		}
 		
 		Destroy (this.gameObject);
 	}
