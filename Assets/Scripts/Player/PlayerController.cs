@@ -71,7 +71,7 @@ public class PlayerController : MonoBehaviour
 
 		// Smoothly rotate to face direction
 		// TODO(samkern): Adjust this constant and input axis gravity to tune movement
-		if(new Vector2(hAxis, vAxis).magnitude > .5f) Rotate(moveDir, false);
+		if(new Vector2(hAxis, vAxis).magnitude > .25f) Rotate(moveDir, false);
 		
 		transform.position = MoveRaycast(PlayerCamera.WrapWithinCameraBounds (newPosition));
 	}
@@ -115,6 +115,18 @@ public class PlayerController : MonoBehaviour
 
 	private Vector3 SlashLinecast(Vector3 position, Vector3 newPosition)
 	{
+		if (slashLineCollide.enabled) {
+			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer ("Debris"));
+			if (hit) {
+				if (!alreadyColliding)
+					AudioManager.PlayPlayerWallHit ();
+				KillSlashEarly ();
+				newPosition = hit.point - ((Vector2)transform.up * .35f);
+				alreadyColliding = true;
+				return newPosition;
+			}
+		}
+		
 		hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer("Impassable"));
 		if (hit) {
 			if(!alreadyColliding) AudioManager.PlayPlayerWallHit ();
@@ -219,6 +231,10 @@ public class PlayerController : MonoBehaviour
 		slashDir = transform.up;
 		savedSlashCharge = slashCharge;
 
+		if (slashLineCollide.enabled) {
+			slashLine.enabled = false;
+		}
+
 		Camera.main.StartShake (slashCharge/30, slashCharge/30);
 		slashCharge = 0.0f;
 		gameObject.layer = LayerMask.NameToLayer ("SlashingHero");
@@ -232,6 +248,7 @@ public class PlayerController : MonoBehaviour
 			savedSlashCharge = 0;
 			slashLine.enabled = false;
 			slashLineWrap.enabled = false;
+			slashLineCollide.enabled = false;
 			Camera.main.ReturnScreen ();
 			gameObject.layer = LayerMask.NameToLayer ("Hero");
 			transform.position = SlashLinecast(transform.position, newPosition);
@@ -243,11 +260,12 @@ public class PlayerController : MonoBehaviour
 			} else {
 				transform.position = SlashLinecast(transform.position, transform.position + slashIncrement);
 			}
-			if (slashLine.enabled) {
+			if (slashLineCollide.enabled)
+				slashLineCollide.SetPosition (0, transform.position);
+			if (slashLine.enabled)
 				slashLine.SetPosition (0, transform.position);
-			} else {
+			else
 				slashLineWrap.SetPosition (0, transform.position);
-			}
 
 			savedSlashCharge -= slashIncrement.magnitude;
 			Camera.main.SingleShake (savedSlashCharge/10, savedSlashCharge/10);
@@ -261,6 +279,7 @@ public class PlayerController : MonoBehaviour
 		savedSlashCharge = 0;
 		slashLine.enabled = false;
 		slashLineWrap.enabled = false;
+		slashLineCollide.enabled = false;
 		Camera.main.ReturnScreen ();
 		spriteR.color = Color.white;
 		Time.timeScale = 1.0f;
