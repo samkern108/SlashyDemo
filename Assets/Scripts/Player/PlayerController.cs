@@ -5,7 +5,7 @@ public class PlayerController : MonoBehaviour
 {
 	private bool playerInputEnabled = true;
 	public static Transform hero;
-	private float hAxis, vAxis;
+	private Vector2 input, inputPrev;
 
 	private static GameObject slashOutline;
 	private Vector3 slashOutlineScale;
@@ -38,8 +38,9 @@ public class PlayerController : MonoBehaviour
 	{
 		if (playerInputEnabled) 
 		{
-			vAxis = InputWrapper.GetVerticalAxis ();
-			hAxis = InputWrapper.GetHorizontalAxis ();
+			inputPrev = input;
+			input.y = InputWrapper.GetVerticalAxis ();
+			input.x = InputWrapper.GetHorizontalAxis ();
 
 			if (chargingSlash) ChargeSlash ();
 
@@ -59,19 +60,17 @@ public class PlayerController : MonoBehaviour
 	private float runSpeed = 4f, walkSpeed = 1f;
 
 	private void Move() {
-		if (!chargingSlash && vAxis == 0 && hAxis == 0)
-			return;
-		if (chargingSlash && Input.GetAxisRaw ("Horizontal") == 0 && Input.GetAxisRaw ("Vertical") == 0)
+		if (input == Vector2.zero)
 			return;
 
 		float moveSpeed = chargingSlash ? walkSpeed : runSpeed;
 
-		Vector3 moveDir = new Vector3 (hAxis, vAxis);
-		Vector3 newPosition = transform.position + moveDir * moveSpeed * Time.deltaTime;
+		Vector3 newPosition = transform.position + (Vector3)input * moveSpeed * Time.deltaTime;
 
 		// Smoothly rotate to face direction
-		// TODO(samkern): Adjust this constant and input axis gravity to tune movement
-		if(new Vector2(hAxis, vAxis).magnitude > .25f) Rotate(moveDir, false);
+		// TODO(samkern): Need to tune movement.
+		if(Input.GetAxisRaw ("Horizontal") != 0 || Input.GetAxisRaw ("Vertical") != 0)
+			Rotate((Vector3)input, false);
 		
 		transform.position = MoveRaycast(PlayerCamera.WrapWithinCameraBounds (newPosition));
 	}
