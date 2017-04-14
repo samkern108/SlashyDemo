@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
 	private static GameObject slashOutline;
 	private Vector3 slashOutlineScale;
 
-	private LineRenderer slashLine, slashLineWrap;
+	private LineRenderer slashLine, slashLineWrap, slashLineCollide;
 	private SpriteRenderer spriteR;
 
 	void Start()
@@ -20,11 +20,15 @@ public class PlayerController : MonoBehaviour
 		slashOutlineScale = slashOutline.transform.localScale;
 		slashOutline.SetActive (false);
 
+		spriteR = GetComponent<SpriteRenderer> ();
+
 		slashLine = transform.FindChild ("SlashLine").GetComponent<LineRenderer>();
 		slashLineWrap = transform.FindChild ("SlashLineWrap").GetComponent<LineRenderer>();
-		spriteR = GetComponent<SpriteRenderer> ();
+		slashLineCollide = transform.FindChild ("SlashLineCollide").GetComponent <LineRenderer>();
+
 		slashLine.enabled = false;
 		slashLineWrap.enabled = false;
+		slashLineCollide.enabled = false;
 	}
 
 	private static Vector3 newPosition;
@@ -111,7 +115,6 @@ public class PlayerController : MonoBehaviour
 
 	private Vector3 SlashLinecast(Vector3 position, Vector3 newPosition)
 	{
-		// Player sprite length is about .5f, so we give it little more space.
 		hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer("Impassable"));
 		if (hit) {
 			if(!alreadyColliding) AudioManager.PlayPlayerWallHit ();
@@ -158,6 +161,17 @@ public class PlayerController : MonoBehaviour
 		slashLine.SetPosition (0, transform.position);
 		slashLine.SetPosition (1, SlashLineLinecast(transform.position, slashVector));
 
+		Vector3 debrisHit = SlashLineDebrisLinecast (transform.position, slashVector);
+		if (debrisHit != Vector3.zero) {
+			if (!slashLineCollide.enabled)
+				slashLineCollide.enabled = true;
+			slashLineCollide.SetPosition (0, transform.position);
+			slashLineCollide.SetPosition (1, debrisHit);
+		}
+		else if(slashLineCollide.enabled) {
+			slashLineCollide.enabled = false;
+		}
+
 		if (slashOutline.activeSelf) {
 			slashOutline.transform.localScale = slashOutlineScale * bgFactor;
 			if (slashOutline.transform.localScale.y <= 0)
@@ -179,12 +193,20 @@ public class PlayerController : MonoBehaviour
 
 	private Vector3 SlashLineLinecast(Vector3 startLine, Vector3 endLine)
 	{
-		// Player sprite length is about .5f, so we give it little more space.
 		hit = Physics2D.Linecast (startLine, endLine, 1 << LayerMask.NameToLayer("Impassable"));
-		if (hit) {
-			endLine = hit.point;
-		}
+		if (hit)
+			return hit.point;
 		return endLine;
+	}
+
+	// returns Vector3.zero if we should NOT display the debris arrow.
+	private Vector3 SlashLineDebrisLinecast(Vector3 startLine, Vector3 endLine)
+	{
+		hit = Physics2D.Linecast (startLine, endLine, 1 << LayerMask.NameToLayer("Debris"));
+		if (hit && hit.collider.OverlapPoint((Vector2)endLine)) {
+			return hit.point;
+		}
+		return Vector3.zero;
 	}
 
 	private void ReleaseSlash() {
