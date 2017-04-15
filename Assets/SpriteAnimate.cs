@@ -28,14 +28,15 @@ public class SpriteAnimate : MonoBehaviour {
 	}
 
 	//Applies a squish effect, and then unsquishes.
-	public void Stretch(Vector3 deformation, float timer, bool autoreverses) {
+	public void Stretch(Vector3 deformation, float timer, bool playForward, bool autoreverses) {
 		Vector3 originalScale = transform.localScale;
 		Vector3 stretchScale = originalScale;
 		stretchScale.x *= (deformation.x);
 		stretchScale.y *= (deformation.y);
 		stretchScale.z *= (deformation.z);
 
-		Timing.RunCoroutine (StretchCo(originalScale, stretchScale, timer, autoreverses));
+		if(playForward) Timing.RunCoroutine (StretchCo(originalScale, stretchScale, timer, autoreverses));
+		else Timing.RunCoroutine (StretchCo(stretchScale, originalScale, timer, autoreverses));
 	}
 
 	private IEnumerator<float> StretchCo (Vector3 originalScale, Vector3 stretchScale, float timer, bool autoreverse) {

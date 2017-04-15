@@ -4,16 +4,19 @@ using UnityEngine;
 
 public class Enemy : Slashable {
 
+	private SpriteAnimate animate;
 	private static GameObject missilePrefab;
 	private float shootTimer = 0.5f;
 
 	void Start () {
+		animate = GetComponent <SpriteAnimate>();
+		animate.Stretch (new Vector3(0,0,0),1.0f,false,false);
 		LevelMaster.enemiesRemaining++;
 
 		if (!missilePrefab)
 			missilePrefab = ResourceLoader.LoadPrefab ("Projectile");
 
-		InvokeRepeating ("Shoot", shootTimer + Random.Range(.1f, .5f), shootTimer);
+		InvokeRepeating ("Shoot", Random.Range(1.0f, 2.0f), shootTimer);
 	}
 
 	public override void Slashed() {
@@ -31,6 +34,7 @@ public class Enemy : Slashable {
 		missile.transform.position = this.transform.position;
 		missile.GetComponent<Projectile>().Initialize (shootDirection);
 
+		animate.Stretch (new Vector3(1.2f, 1.2f, 1.2f), .2f, true, true);
 		AudioManager.PlayShoot ();
 	}
 

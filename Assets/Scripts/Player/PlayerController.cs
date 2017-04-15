@@ -109,7 +109,7 @@ public class PlayerController : MonoBehaviour
 		if (hit) {
 			if (!alreadyColliding) {
 				AudioManager.PlayPlayerWallHit ();
-				animate.Stretch (new Vector3(.6f, 1.2f, 0), .1f, true);
+				animate.Stretch (new Vector3(.6f, 1.2f, 0), .1f, true, true);
 			}
 			position = hit.point - ((Vector2)transform.up * .35f);
 			alreadyColliding = true;
@@ -127,7 +127,7 @@ public class PlayerController : MonoBehaviour
 			if (hit) {
 				if (!alreadyColliding) {
 					AudioManager.PlayPlayerWallHit ();
-					animate.Stretch (new Vector3(.6f, 1.2f, 0), .1f, true);
+					animate.Stretch (new Vector3(.6f, 1.2f, 0), .1f, true, true);
 				}
 				KillSlashEarly ();
 				newPosition = hit.point - ((Vector2)transform.up * .35f);
@@ -140,7 +140,7 @@ public class PlayerController : MonoBehaviour
 		if (hit) {
 			if (!alreadyColliding) {
 				AudioManager.PlayPlayerWallHit ();
-				animate.Stretch (new Vector3(.6f, 1.2f, 0), .1f, true);
+				animate.Stretch (new Vector3(.6f, 1.2f, 0), .1f, true, true);
 			}
 			KillSlashEarly ();
 			newPosition = hit.point - ((Vector2)transform.up * .35f);
@@ -317,7 +317,7 @@ public class PlayerController : MonoBehaviour
 		else if(LayerMask.LayerToName (collider.gameObject.layer) == "BlueDot") {
 			if (collider.GetComponent<BlueDot> ().active) {
 				animate.ColorFade (Color.white, new Color (104.0f / 255.0f, 155.0f / 255.0f, 1.0f), 0.2f, true);
-				animate.Stretch (new Vector3 (1.6f, 1.6f, 0), .2f, true);
+				animate.Stretch (new Vector3 (1.6f, 1.6f, 0), .2f, true, true);
 			}
 		}
 	}
