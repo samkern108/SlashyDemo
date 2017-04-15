@@ -95,6 +95,7 @@ public class AudioManager : MonoBehaviour {
 			}
 		}
 		source.PlayOneShot (projectileShoot);
+		source.pitch = Random.Range (.8f, 1.2f);
 		float wait = projectileShoot.length;
 		Timing.RunCoroutine (RecycleSource(wait, source));
 	}
@@ -105,6 +106,7 @@ public class AudioManager : MonoBehaviour {
 
 	private static IEnumerator<float> RecycleSource (float wait, AudioSource source) {
 		yield return wait;
+		//source.pitch = 1.0f;
 		freeSources.Add (source);
 	}
 }
