@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MovementEffects;
 
 public class AudioManager : MonoBehaviour {
 
@@ -11,16 +12,24 @@ public class AudioManager : MonoBehaviour {
 	levelComplete, gameStart, 
 	dotPickup;
 
+	private static GameObject sourceTemplate;
+	private static int activeSources = 0;
+	private static List<AudioSource> freeSources = new List<AudioSource>();
+
 	public static AudioSource dotAS, playerAS;
 
 	public void Awake() {
 		instance = this;
+		sourceTemplate = new GameObject("SourceTemplate");
+		sourceTemplate.AddComponent <AudioSource>();
+		sourceTemplate.transform.SetParent (this.transform);
+
 		dotAS = transform.FindChild ("DotAS").GetComponent<AudioSource>();
 		playerAS = transform.FindChild ("PlayerAS").GetComponent<AudioSource>();
 	}
 
 	public static void Initialize () {
-		projectileShoot = ResourceLoader.LoadAudioClip ("Projectile Shoot");
+		projectileShoot = ResourceLoader.LoadAudioClip ("Shoot");
 		projectileExplode = ResourceLoader.LoadAudioClip ("Projectile Explode");
 		playerBoostCharge = ResourceLoader.LoadAudioClip ("Player Boost Charge");
 		playerBoostRelease = ResourceLoader.LoadAudioClip ("Player Boost Release");
@@ -66,5 +75,36 @@ public class AudioManager : MonoBehaviour {
 
 	public static void PlayPlayerWallHit() {
 		playerAS.PlayOneShot (playerTurn);
+	}
+
+	public static void PlayShoot() {
+		AudioSource source;
+		if (freeSources.Count == 0) {
+			GameObject obj = Instantiate (sourceTemplate);
+			obj.transform.SetParent (AudioManager.instance.transform);
+			source = obj.GetComponent <AudioSource>();
+			activeSources++;
+		}
+		else {
+			// Race condition?
+			source = freeSources[0];
+			freeSources.RemoveAt (0);
+			// Figure out a better way to determine if sources can be removed.
+			if (freeSources.Count >= (int)Mathf.Ceil (activeSources / 2)) {
+				freeSources.RemoveRange (0, (int)Mathf.Floor (activeSources / 2));
+			}
+		}
+		source.PlayOneShot (projectileShoot);
+		float wait = projectileShoot.length;
+		Timing.RunCoroutine (RecycleSource(wait, source));
+	}
+
+	public static void PlayProjectileExplode() {
+		
+	}
+
+	private static IEnumerator<float> RecycleSource (float wait, AudioSource source) {
+		yield return wait;
+		freeSources.Add (source);
 	}
 }

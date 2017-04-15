@@ -29,6 +29,8 @@ public class Projectile : MonoBehaviour {
 
 			Vector2 reflection = Vector2.Reflect (moveDir, hit.normal);
 			explosion.transform.rotation = Quaternion.LookRotation(reflection,Vector3.up);
+
+			AudioManager.PlayProjectileExplode ();
 		}
 		
 		Destroy (this.gameObject);

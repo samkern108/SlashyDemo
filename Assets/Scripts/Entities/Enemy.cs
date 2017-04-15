@@ -30,6 +30,8 @@ public class Enemy : Slashable {
 		GameObject missile = Instantiate (missilePrefab, transform.parent);
 		missile.transform.position = this.transform.position;
 		missile.GetComponent<Projectile>().Initialize (shootDirection);
+
+		AudioManager.PlayShoot ();
 	}
 
 	// Notifications
