@@ -1,13 +1,19 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System;
 
 public class UIManager : MonoBehaviour {
 
 	public static UIManager self;
 	private static GameObject menu;
 
-	private static Text levelText, blueDotText;
+	public static float timerMin = 0.0f;
+	public static float timerSec = 0.0f;
+	public static float timerMilis = 0.0f;
+
+	private static bool timing = false;
+	private static Text levelText, timerText;
 	private static Text pressSpaceToSlash;
 	private static GameObject gameOverPanel, victoryPanel;
 
@@ -16,7 +22,7 @@ public class UIManager : MonoBehaviour {
 		self = this;
 		menu = transform.FindChild ("Menu").gameObject;
 		levelText = transform.FindChild ("Level").GetComponent<Text>();
-		blueDotText = transform.FindChild ("Blue Dots").GetComponent<Text>();
+		timerText = transform.FindChild ("Timer").GetComponent<Text>();
 		gameOverPanel = transform.FindChild ("Game Over").gameObject;
 		victoryPanel = transform.FindChild ("Victory").gameObject;
 
@@ -27,6 +33,17 @@ public class UIManager : MonoBehaviour {
 	{
 		if (Input.GetKeyDown (KeyCode.Escape))
 			menu.SetActive (!menu.activeInHierarchy);
+		// Does this keep time accurately enough? Should we subtract time from time started?
+		if (timing) {
+			timerMilis += Time.deltaTime;
+			timerSec = Mathf.Floor ((float)Math.Round (timerMilis, 1)) - timerMin;
+
+			if (timerSec >= (10 * timerMin)) {
+				timerMin++;
+			}
+
+			UpdateTimerText ();
+		}
 	}
 
 	public void ShowLevelNumber(int levelNumber)
@@ -35,9 +52,19 @@ public class UIManager : MonoBehaviour {
 		levelText.FadeIn (2.0f, false);
 	}
 
-	public void SetBlueDots(int blueDots)
+	public void UpdateTimerText()
 	{
-		blueDotText.text = blueDots + "";
+		string minText = timerMin + "";
+		string secText = timerSec + "";
+		double milis = (Math.Round (timerMilis, 1) - timerSec) * 10;
+		string milisText = milis + "";
+
+		if (timerMin < 10)
+			minText = "0" + minText;
+		if (timerSec < 10)
+			secText = "0" + secText;
+			
+		timerText.text = minText + ":" + secText + ":" + milisText;
 	}
 
 	public void DisplaySpaceToSlash(bool display)
@@ -54,6 +81,7 @@ public class UIManager : MonoBehaviour {
 	// Notifications
 
 	public void GameEnd(bool victory) {
+		timing = false;
 		if (victory)
 			victoryPanel.SetActive (true);
 		else
@@ -63,9 +91,16 @@ public class UIManager : MonoBehaviour {
 	public void Restart() {
 		gameOverPanel.SetActive (false);
 		victoryPanel.SetActive (false);
+
+		timing = true;
+		timerMin = 0.0f;
+		timerSec = 0.0f;
+		timerMilis = 0.0f;
+		timerText.text = "0:00:00";
 	}
 
 	public void LevelLoaded(int level) {
 		UIManager.self.ShowLevelNumber (level);
+		timing = true;
 	}
 }

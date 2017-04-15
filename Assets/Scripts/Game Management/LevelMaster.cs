@@ -54,12 +54,10 @@ public class LevelMaster : MonoBehaviour {
 	// This is a silly way to do this
 	public static void AddBlueDot() {
 		blueDotsRemaining++;
-		UIManager.self.SetBlueDots (blueDotsRemaining);
 	}
 
 	public static void CollectBlueDot() {
 		blueDotsRemaining--;
-		UIManager.self.SetBlueDots (blueDotsRemaining);
 		if (blueDotsRemaining == 0) {
 			if(level < levelCap)
 				LoadNextLevel ();
