@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BlueDot : MonoBehaviour {
 
-	private bool active = true;
+	public bool active = true;
 
 	public List<BlueDot> activators = new List<BlueDot> ();
 	private List<BlueDot> activates = new List<BlueDot> ();

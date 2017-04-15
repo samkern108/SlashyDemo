@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour
 	private LineRenderer slashLine, slashLineWrap, slashLineCollide;
 	private SpriteRenderer spriteR;
 
+	private SpriteAnimate animate;
+
 	void Start()
 	{
 		hero = this.transform;
@@ -26,6 +28,8 @@ public class PlayerController : MonoBehaviour
 		slashLine = transform.FindChild ("SlashLine").GetComponent<LineRenderer>();
 		slashLineWrap = transform.FindChild ("SlashLineWrap").GetComponent<LineRenderer>();
 		slashLineCollide = transform.FindChild ("SlashLineCollide").GetComponent <LineRenderer>();
+
+		animate = GetComponent <SpriteAnimate>();
 
 		slashLine.enabled = false;
 		slashLineWrap.enabled = false;
@@ -103,7 +107,10 @@ public class PlayerController : MonoBehaviour
 			hit = Physics2D.Raycast (position, transform.up, .35f, 1 << LayerMask.NameToLayer("Debris"));
 
 		if (hit) {
-			if(!alreadyColliding) AudioManager.PlayPlayerWallHit ();
+			if (!alreadyColliding) {
+				AudioManager.PlayPlayerWallHit ();
+				animate.Stretch (new Vector3(.6f, 1.2f, 0), .1f, true);
+			}
 			position = hit.point - ((Vector2)transform.up * .35f);
 			alreadyColliding = true;
 		} else {
@@ -118,8 +125,10 @@ public class PlayerController : MonoBehaviour
 		if (slashLineCollide.enabled) {
 			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer ("Debris"));
 			if (hit) {
-				if (!alreadyColliding)
+				if (!alreadyColliding) {
 					AudioManager.PlayPlayerWallHit ();
+					animate.Stretch (new Vector3(.6f, 1.2f, 0), .1f, true);
+				}
 				KillSlashEarly ();
 				newPosition = hit.point - ((Vector2)transform.up * .35f);
 				alreadyColliding = true;
@@ -129,7 +138,10 @@ public class PlayerController : MonoBehaviour
 		
 		hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer("Impassable"));
 		if (hit) {
-			if(!alreadyColliding) AudioManager.PlayPlayerWallHit ();
+			if (!alreadyColliding) {
+				AudioManager.PlayPlayerWallHit ();
+				animate.Stretch (new Vector3(.6f, 1.2f, 0), .1f, true);
+			}
 			KillSlashEarly ();
 			newPosition = hit.point - ((Vector2)transform.up * .35f);
 			alreadyColliding = true;
@@ -300,30 +312,13 @@ public class PlayerController : MonoBehaviour
 
 	public void OnTriggerEnter2D(Collider2D collider) {
 		if (LayerMask.LayerToName (collider.gameObject.layer) == "Projectile") {
-			/*if (savedSlashCharge <= 0.0f) {
-				Die ();
-			else
-				StartCoroutine ("ColorFadeIn", Color.blue);*/
 			Die ();
 		}
-	}
-
-	private void ColorFadeIn(Color color) {
-		float startRG = 0.0f, endRG = 1.0f;
-		float currentRG = startRG;
-		while(currentRG <= endRG) {
-			currentRG += Time.deltaTime;
-			spriteR.color = Color.Lerp (Color.white, color, currentRG);
-		}
-		StartCoroutine ("ColorFadeOut", color);
-	}
-
-	private void ColorFadeOut(Color color) {
-		float startRG = 1.0f, endRG = 0.0f;
-		float currentRG = startRG;
-		while(currentRG >= endRG) {
-			currentRG -= Time.deltaTime;
-			spriteR.color = Color.Lerp (Color.white, color, currentRG);
+		else if(LayerMask.LayerToName (collider.gameObject.layer) == "BlueDot") {
+			if (collider.GetComponent<BlueDot> ().active) {
+				animate.ColorFade (Color.white, new Color (104.0f / 255.0f, 155.0f / 255.0f, 1.0f), 0.2f, true);
+				animate.Stretch (new Vector3 (1.6f, 1.6f, 0), .2f, true);
+			}
 		}
 	}
 
