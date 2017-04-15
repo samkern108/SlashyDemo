@@ -10,7 +10,6 @@ public class UIManager : MonoBehaviour {
 
 	public static float timerMin = 0.0f;
 	public static float timerSec = 0.0f;
-	public static float timerMilis = 0.0f;
 
 	private static bool timing = false;
 	private static Text levelText, timerText;
@@ -35,10 +34,10 @@ public class UIManager : MonoBehaviour {
 			menu.SetActive (!menu.activeInHierarchy);
 		// Does this keep time accurately enough? Should we subtract time from time started?
 		if (timing) {
-			timerMilis += Time.deltaTime;
-			timerSec = Mathf.Floor ((float)Math.Round (timerMilis, 1)) - timerMin;
+			timerSec += Time.deltaTime;
 
-			if (timerSec >= (10 * timerMin)) {
+			if (timerSec >= 60) {
+				timerSec -= 60;
 				timerMin++;
 			}
 
@@ -55,8 +54,9 @@ public class UIManager : MonoBehaviour {
 	public void UpdateTimerText()
 	{
 		string minText = timerMin + "";
-		string secText = timerSec + "";
-		double milis = (Math.Round (timerMilis, 1) - timerSec) * 10;
+		int floorSeconds = (int)Mathf.Floor (timerSec);
+		string secText = floorSeconds + "";
+		int milis = (int)((timerSec - floorSeconds) * 10);
 		string milisText = milis + "";
 
 		if (timerMin < 10)
@@ -88,6 +88,11 @@ public class UIManager : MonoBehaviour {
 			gameOverPanel.SetActive (true);
 	}
 
+	public void Respawn() {
+		gameOverPanel.SetActive (false);
+		victoryPanel.SetActive (false);		
+	}
+
 	public void Restart() {
 		gameOverPanel.SetActive (false);
 		victoryPanel.SetActive (false);
@@ -95,7 +100,6 @@ public class UIManager : MonoBehaviour {
 		timing = true;
 		timerMin = 0.0f;
 		timerSec = 0.0f;
-		timerMilis = 0.0f;
 		timerText.text = "0:00:00";
 	}
 

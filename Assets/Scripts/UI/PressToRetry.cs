@@ -6,7 +6,7 @@ public class PressToRetry : MonoBehaviour {
 
 	void Update () {
 		if (Input.GetKeyDown(KeyCode.Space)) {
-			LevelMaster.Retry ();
+			LevelMaster.Respawn ();
 			gameObject.SetActive (false);
 		}	
 	}

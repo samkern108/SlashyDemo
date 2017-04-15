@@ -22,6 +22,10 @@ public class Notifications : MonoBehaviour {
 		BroadcastMessage ("Restart");
 	}
 
+	public void SendRespawnNotification() {
+		BroadcastMessage ("Respawn");
+	}
+
 	public void SendLoadLevelNotification(int level) {
 		BroadcastMessage ("LevelLoaded", level);
 	}
