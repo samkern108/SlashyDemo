@@ -6,7 +6,7 @@ public class Enemy : Slashable {
 
 	private SpriteAnimate animate;
 	private static GameObject missilePrefab;
-	private float shootTimer = 0.5f;
+	public float shootTimer = 0.5f;
 
 	void Start () {
 		animate = GetComponent <SpriteAnimate>();

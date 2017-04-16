@@ -6,8 +6,10 @@ using MovementEffects;
 public class SpriteAnimate : MonoBehaviour {
 
 	private SpriteRenderer spriteR;
+	private Vector3 originalScale;
 
-	public void Start() {
+	public void Awake() {
+		originalScale = transform.localScale;
 		spriteR = GetComponent <SpriteRenderer>();
 	}
 
@@ -29,7 +31,6 @@ public class SpriteAnimate : MonoBehaviour {
 
 	//Applies a squish effect, and then unsquishes.
 	public void Stretch(Vector3 deformation, float timer, bool playForward, bool autoreverses) {
-		Vector3 originalScale = transform.localScale;
 		Vector3 stretchScale = originalScale;
 		stretchScale.x *= (deformation.x);
 		stretchScale.y *= (deformation.y);
@@ -46,6 +47,7 @@ public class SpriteAnimate : MonoBehaviour {
 			transform.localScale = Vector3.Lerp (originalScale, stretchScale, t);
 			yield return 0f;
 		}
+		transform.localScale = stretchScale;
 		if (autoreverse) {
 			Timing.RunCoroutine (StretchCo(stretchScale, originalScale, timer, false));
 		}
