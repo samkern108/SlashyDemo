@@ -30,7 +30,7 @@ public class BlueDot : MonoBehaviour {
 	public void OnTriggerEnter2D(Collider2D collider) {
 		if (active) {
 			AudioManager.instance.PlayDotPickup ();
-			LevelMaster.CollectBlueDot ();
+			LevelMaster.CollectBlueDot (transform.position);
 			foreach(BlueDot activated in activates)
 				// TODO(samkern): Delay this activation and play a sound.
 				activated.Activate (this);

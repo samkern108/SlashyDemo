@@ -11,6 +11,8 @@ public class LevelMaster : MonoBehaviour {
 	public static GameObject levelContainer;
 	public static GameObject hero, heroPrefab;
 
+	private static Vector3 playerRespawnPos = new Vector3(0,0,0);
+
 	void Start () {
 		IOManager.Initialize ();
 		ParticleManager.Initialize ();
@@ -22,12 +24,11 @@ public class LevelMaster : MonoBehaviour {
 		heroPrefab = ResourceLoader.LoadPrefab ("Hero");
 	}
 
-	public static void InitHero() {
+	public static void InitHero(Vector3 spawnPosition) {
 		if(hero) Destroy (hero);
 		hero = Instantiate (heroPrefab);
-		Vector3 newPos = Camera.main.transform.position;
-		newPos.z = 0;
-		hero.transform.position = newPos;
+		spawnPosition.z = 0;
+		hero.transform.position = spawnPosition;
 	}
 
 	public static void LoadNextLevel() {
@@ -56,11 +57,13 @@ public class LevelMaster : MonoBehaviour {
 		blueDotsRemaining++;
 	}
 
-	public static void CollectBlueDot() {
+	public static void CollectBlueDot(Vector3 blueDotPosition) {
 		blueDotsRemaining--;
 		if (blueDotsRemaining == 0) {
-			if(level < levelCap)
+			if (level < levelCap) {
+				playerRespawnPos = (Vector2)blueDotPosition;
 				LoadNextLevel ();
+			}
 			else
 				Victory ();
 		}
@@ -76,15 +79,15 @@ public class LevelMaster : MonoBehaviour {
 
 	public static void Restart() {
 		Notifications.self.SendRestartNotification ();
-		InitHero ();
+		InitHero (playerRespawnPos);
 		level = 0;
 		LoadNextLevel ();
 	}
 
 	public static void Respawn() {
 		Notifications.self.SendRespawnNotification ();
-		InitHero ();
-		level = Mathf.Max(level - 2, 0);
+		InitHero (playerRespawnPos);
+		level = level - 1;
 		LoadNextLevel ();
 	}
 }
