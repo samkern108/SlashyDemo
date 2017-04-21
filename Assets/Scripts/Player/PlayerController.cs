@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
 	void Start()
 	{
 		hero = this.transform;
+		originalScale = transform.localScale;
 		slashOutline = transform.FindChild ("SlashOutline").gameObject;
 		slashOutlineScale = slashOutline.transform.localScale;
 		slashOutline.SetActive (false);
@@ -62,13 +63,20 @@ public class PlayerController : MonoBehaviour
 	}
 
 	//## RUNNING ##//
-	private float runSpeed = 4f, walkSpeed = 1f;
+	private float runSpeed = 6f, walkSpeed = 2f;
+	private float moveSpeed = 0f;
 
 	private void Move() {
-		if (input == Vector2.zero)
+		if (input == Vector2.zero) {
+			moveSpeed = 0;
 			return;
+		}
 
-		float moveSpeed = chargingSlash ? walkSpeed : runSpeed;
+		Debug.Log (moveSpeed + " : " + runSpeed + " : " + ((moveSpeed + (chargingSlash ? walkSpeed : runSpeed))/2));
+
+		// Tune coefficients to control ramp up speed
+		moveSpeed = ((1 * moveSpeed) + (chargingSlash ? walkSpeed : runSpeed))/2;
+		//moveSpeed = Mathf.Clamp (moveSpeed + .3f, 0f, (chargingSlash ? walkSpeed : runSpeed));
 
 		Vector3 newPosition = transform.position + (Vector3)input * moveSpeed * Time.deltaTime;
 
@@ -79,6 +87,8 @@ public class PlayerController : MonoBehaviour
 		
 		transform.position = MoveRaycast(PlayerCamera.WrapWithinCameraBounds (newPosition));
 	}
+
+	Vector3 originalScale;
 
 	private void Rotate(Vector3 dir, bool instant) {
 
@@ -91,6 +101,13 @@ public class PlayerController : MonoBehaviour
 			transform.rotation = q;
 		else {
 			transform.rotation = Quaternion.Slerp (transform.rotation, q, (Time.unscaledDeltaTime) * 8.0f);
+			float rotAngle = Quaternion.Angle (transform.rotation, q);
+			moveSpeed = Mathf.Clamp(moveSpeed - (moveSpeed * (rotAngle / 1080)), 0, moveSpeed);
+			//animate.Stretch (new Vector3((1 - rotAngle/720),0,0), 0.0f, true, true);
+			Vector3 scale = originalScale;
+			scale.x *= (1 - rotAngle / 360);
+			scale.y *= (1 + rotAngle / 360);
+			transform.localScale = scale;
 			//if (Quaternion.Angle (transform.rotation, q) > 50.0f)
 			//	AudioManager.PlayPlayerTurn ();
 		}
@@ -113,6 +130,7 @@ public class PlayerController : MonoBehaviour
 			}
 			position = hit.point - ((Vector2)transform.up * .30f);
 			alreadyColliding = true;
+			moveSpeed = 0;
 		} else {
 			alreadyColliding = false;
 		}
