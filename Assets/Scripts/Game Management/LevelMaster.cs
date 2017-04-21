@@ -10,6 +10,9 @@ public class LevelMaster : MonoBehaviour {
 	public static GameObject levelContainer;
 	public static GameObject hero, heroPrefab;
 
+	private static float[] highScoreTable = new float[10];
+	private static string[] highScoreNames = new string[10];
+
 	private static Vector3 playerRespawnPos = new Vector3(0,0,0);
 
 	void Start () {
@@ -19,6 +22,11 @@ public class LevelMaster : MonoBehaviour {
 
 		levelContainer = transform.FindChild ("LevelContainer").gameObject;
 		heroPrefab = ResourceLoader.LoadPrefab ("Hero");
+
+		for(int i = 0; i < highScoreTable.Length; i++) {
+			highScoreTable[i] = PlayerPrefs.GetFloat("HighScore" + i);
+			highScoreNames[i] = PlayerPrefs.GetString("HighScoreName" + i);
+		}
 	}
 
 	public static void InitHero(Vector3 spawnPosition) {
@@ -70,6 +78,8 @@ public class LevelMaster : MonoBehaviour {
 
 	public static void Victory() {
 		Notifications.self.SendGameEndNotification (true);
+		float score = UIManager.timerMin * 60 + UIManager.timerSec;
+		UpdateHighScores (score);
 	}
 
 	public static void Defeat() {
@@ -88,5 +98,30 @@ public class LevelMaster : MonoBehaviour {
 		InitHero (playerRespawnPos);
 		level = level - 1;
 		LoadNextLevel ();
+	}
+
+	private static void UpdateHighScores(float score) {
+		bool dirty = false;
+		string name = "";
+		string nameTemp = "";
+		float scoreComp = score;
+		float scoreCompTemp = score;
+		for(int i = 0; i < highScoreTable.Length; i++) {
+			if (scoreComp < highScoreTable [i]) {
+				PlayerPrefs.SetFloat ("HighScore" + i,scoreComp);
+				PlayerPrefs.SetString ("HighScoreName" + i, name);
+
+				scoreCompTemp = scoreComp;
+				scoreComp = highScoreTable [i];
+				highScoreTable [i] = scoreCompTemp;
+
+				nameTemp = name;
+				name = highScoreNames [i];
+				highScoreNames [i] = nameTemp;
+
+				dirty = true;
+			}
+		}
+		if(dirty) PlayerPrefs.Save ();
 	}
 }
