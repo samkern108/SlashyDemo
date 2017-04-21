@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class LevelMaster : MonoBehaviour {
 
-	public static int level = 0;
-	public static int levelCap = 3;
+	public static int level = 1;
 	public static int enemiesRemaining = 0;
 	private static int blueDotsRemaining = 0;
 	public static GameObject levelContainer;
@@ -18,8 +17,6 @@ public class LevelMaster : MonoBehaviour {
 		ParticleManager.Initialize ();
 		AudioManager.Initialize ();
 
-		levelCap = ResourceLoader.NumberOfLevels ();
-
 		levelContainer = transform.FindChild ("LevelContainer").gameObject;
 		heroPrefab = ResourceLoader.LoadPrefab ("Hero");
 	}
@@ -31,23 +28,28 @@ public class LevelMaster : MonoBehaviour {
 		hero.transform.position = spawnPosition;
 	}
 
-	public static void LoadNextLevel() {
-		level++;
+	public static bool LoadNextLevel() {
+		GameObject levelObject = ResourceLoader.LoadLevelPrefab (level);
+		if (!levelObject)
+			return false;
+		
 		enemiesRemaining = 0;
 		blueDotsRemaining = 0;
 
 		Notifications.self.SendLoadLevelNotification(level);
 
 		Destroy (levelContainer);
-		levelContainer = Instantiate(ResourceLoader.LoadLevelPrefab (level), levelContainer.transform.parent);
+		levelContainer = Instantiate(levelObject, levelContainer.transform.parent);
+
+		level++;
+
+		return true;
 	}
 
 	public static void EnemyDied() {
 		enemiesRemaining--;
 		if (enemiesRemaining == 0) {
-			if (level < levelCap)
-				LoadNextLevel ();
-			else
+			if (!LoadNextLevel ())
 				Victory ();
 		}
 	}
@@ -60,11 +62,8 @@ public class LevelMaster : MonoBehaviour {
 	public static void CollectBlueDot(Vector3 blueDotPosition) {
 		blueDotsRemaining--;
 		if (blueDotsRemaining == 0) {
-			if (level < levelCap) {
-				playerRespawnPos = (Vector2)blueDotPosition;
-				LoadNextLevel ();
-			}
-			else
+			playerRespawnPos = (Vector2)blueDotPosition;
+			if (!LoadNextLevel ())
 				Victory ();
 		}
 	}
@@ -80,7 +79,7 @@ public class LevelMaster : MonoBehaviour {
 	public static void Restart() {
 		Notifications.self.SendRestartNotification ();
 		InitHero (playerRespawnPos);
-		level = 0;
+		level = 1;
 		LoadNextLevel ();
 	}
 

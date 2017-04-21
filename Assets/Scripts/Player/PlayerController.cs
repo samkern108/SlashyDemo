@@ -102,16 +102,16 @@ public class PlayerController : MonoBehaviour
 	private Vector3 MoveRaycast(Vector3 position)
 	{
 		// Player sprite length is about .5f, so we give it little more space.
-		hit = Physics2D.Raycast (position, transform.up, .35f, 1 << LayerMask.NameToLayer("Impassable"));
+		hit = Physics2D.Raycast (position, transform.up, .30f, 1 << LayerMask.NameToLayer("Impassable"));
 		if(!hit)
-			hit = Physics2D.Raycast (position, transform.up, .35f, 1 << LayerMask.NameToLayer("Debris"));
+			hit = Physics2D.Raycast (position, transform.up, .30f, 1 << LayerMask.NameToLayer("Debris"));
 
 		if (hit) {
 			if (!alreadyColliding) {
 				AudioManager.PlayPlayerWallHit ();
-				animate.Stretch (new Vector3(.6f, 1.2f, 0), .1f, true, true);
+				animate.Stretch (new Vector3(1.2f, .6f, 0), .1f, true, true);
 			}
-			position = hit.point - ((Vector2)transform.up * .35f);
+			position = hit.point - ((Vector2)transform.up * .30f);
 			alreadyColliding = true;
 		} else {
 			alreadyColliding = false;
@@ -127,10 +127,10 @@ public class PlayerController : MonoBehaviour
 			if (hit) {
 				if (!alreadyColliding) {
 					AudioManager.PlayPlayerWallHit ();
-					animate.Stretch (new Vector3(.6f, 1.2f, 0), .1f, true, true);
+					animate.Stretch (new Vector3(1.2f, .6f, 0), .1f, true, true);
 				}
 				KillSlashEarly ();
-				newPosition = hit.point - ((Vector2)transform.up * .35f);
+				newPosition = hit.point - ((Vector2)transform.up * .30f);
 				alreadyColliding = true;
 				return newPosition;
 			}
@@ -140,7 +140,7 @@ public class PlayerController : MonoBehaviour
 		if (hit) {
 			if (!alreadyColliding) {
 				AudioManager.PlayPlayerWallHit ();
-				animate.Stretch (new Vector3(.6f, 1.2f, 0), .1f, true, true);
+				animate.Stretch (new Vector3(1.2f, .6f, 0), .1f, true, true);
 			}
 			KillSlashEarly ();
 			newPosition = hit.point - ((Vector2)transform.up * .35f);
@@ -316,7 +316,7 @@ public class PlayerController : MonoBehaviour
 		}
 		else if(LayerMask.LayerToName (collider.gameObject.layer) == "BlueDot") {
 			if (collider.GetComponent<BlueDot> ().active) {
-				animate.ColorFade (Color.white, new Color (104.0f / 255.0f, 155.0f / 255.0f, 1.0f), 0.2f, true);
+				animate.ColorFade (Color.white, new Color (104.0f / 255.0f, 188.0f / 255.0f, 237.0f / 255.0f), 0.2f, true);
 				animate.Stretch (new Vector3 (1.6f, 1.6f, 0), .2f, true, true);
 			}
 		}
