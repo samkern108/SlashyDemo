@@ -71,9 +71,7 @@ public class PlayerController : MonoBehaviour
 			moveSpeed = 0;
 			return;
 		}
-
-		Debug.Log (moveSpeed + " : " + runSpeed + " : " + ((moveSpeed + (chargingSlash ? walkSpeed : runSpeed))/2));
-
+			
 		// Tune coefficients to control ramp up speed
 		moveSpeed = ((1 * moveSpeed) + (chargingSlash ? walkSpeed : runSpeed))/2;
 		//moveSpeed = Mathf.Clamp (moveSpeed + .3f, 0f, (chargingSlash ? walkSpeed : runSpeed));

@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour {
 	private static Text levelText, timerText;
 	private static Text pressSpaceToSlash;
 	private static GameObject gameOverPanel, victoryPanel;
+	private static GameObject highScoreRow;
 
 	public void Awake()
 	{
@@ -26,6 +27,11 @@ public class UIManager : MonoBehaviour {
 		victoryPanel = transform.FindChild ("Victory").gameObject;
 
 		pressSpaceToSlash = transform.FindChild("Press Space To Slash").GetComponent<Text>();
+	}
+
+	public void Start()
+	{
+		highScoreRow = ResourceLoader.LoadPrefab ("HighScoreRow");
 	}
 
 	public void Update()
@@ -82,8 +88,11 @@ public class UIManager : MonoBehaviour {
 
 	public void GameEnd(bool victory) {
 		timing = false;
-		if (victory)
+		if (victory) {
+			levelText.enabled = true;
 			victoryPanel.SetActive (true);
+			DisplayHighScores ();
+		}
 		else
 			gameOverPanel.SetActive (true);
 	}
@@ -94,6 +103,7 @@ public class UIManager : MonoBehaviour {
 	}
 
 	public void Restart() {
+		levelText.enabled = true;
 		gameOverPanel.SetActive (false);
 		victoryPanel.SetActive (false);
 
@@ -106,5 +116,25 @@ public class UIManager : MonoBehaviour {
 	public void LevelLoaded(int level) {
 		UIManager.self.ShowLevelNumber (level);
 		timing = true;
+	}
+
+	private static int highScoreRowHeight = 30, highScoreXOffset = 60;
+
+	private void DisplayHighScores() {
+		GameObject row;
+		for (int i = 0; i < Mathf.CeilToInt(LevelMaster.highScoreTable.Length/2); i++) {
+			row = Instantiate (highScoreRow);
+			row.transform.SetParent (victoryPanel.transform.FindChild("ScoresTable"));
+			row.transform.localPosition = new Vector3 (-highScoreXOffset, -(highScoreRowHeight * i));
+			row.transform.FindChild ("Score").GetComponent<Text>().text = "" + LevelMaster.highScoreTable[i];
+			row.transform.FindChild ("Name").GetComponent<Text>().text = LevelMaster.highScoreNames[i];
+		}
+		for (int i = 0; i < Mathf.FloorToInt(LevelMaster.highScoreTable.Length/2); i++) {
+			row = Instantiate (highScoreRow);
+			row.transform.SetParent (victoryPanel.transform.FindChild("ScoresTable"));
+			row.transform.localPosition = new Vector3 (highScoreXOffset, -(highScoreRowHeight * i));
+			row.transform.FindChild ("Score").GetComponent<Text>().text = "" + LevelMaster.highScoreTable[i];
+			row.transform.FindChild ("Name").GetComponent<Text>().text = LevelMaster.highScoreNames[i];
+		}
 	}
 }

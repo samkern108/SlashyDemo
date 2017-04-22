@@ -4,14 +4,18 @@ using UnityEngine;
 
 public class LevelMaster : MonoBehaviour {
 
+	/** DEBUGGING **/
+	private static int levelCapOverride = 100;
+	/** DEBUGGING **/
+
 	public static int level = 1;
 	public static int enemiesRemaining = 0;
 	private static int blueDotsRemaining = 0;
 	public static GameObject levelContainer;
 	public static GameObject hero, heroPrefab;
 
-	private static float[] highScoreTable = new float[10];
-	private static string[] highScoreNames = new string[10];
+	public static float[] highScoreTable = new float[10];
+	public static string[] highScoreNames = new string[10];
 
 	private static Vector3 playerRespawnPos = new Vector3(0,0,0);
 
@@ -50,6 +54,9 @@ public class LevelMaster : MonoBehaviour {
 		levelContainer = Instantiate(levelObject, levelContainer.transform.parent);
 
 		level++;
+
+		if (level > levelCapOverride)
+			Victory ();
 
 		return true;
 	}
