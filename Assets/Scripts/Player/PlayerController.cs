@@ -259,11 +259,14 @@ public class PlayerController : MonoBehaviour
 	{
 		if (slashLineCollide.enabled)
 			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer ("Debris"));
-		if(!hit) 
-			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer("Impassable"));
+		else
+			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer ("Impassable"));
+
 		if (hit) {
-			animate.Stretch (new Vector3(2.0f, .2f, 0), .1f, true, true);
-			AudioManager.PlayPlayerWallHit ();
+			if (!alreadyColliding) {
+				AudioManager.PlayPlayerWallHit ();
+				animate.Stretch (new Vector3 (1.2f, .6f, 0), .1f, true, true);
+			}
 			EndSlash ();
 			newPosition = hit.point - ((Vector2)transform.up * .30f);
 			alreadyColliding = true;
