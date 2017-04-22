@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
 	private SpriteRenderer spriteR;
 	private SpriteAnimate animate;
 	private LineRenderer slashLine, slashLineWrap, slashLineCollide;
+	private GameObject leftWakePS, rightWakePS;
 
 	private static GameObject slashOutline;
 	private Vector3 slashOutlineScale;
@@ -30,6 +31,8 @@ public class PlayerController : MonoBehaviour
 		slashOutlineScale = slashOutline.transform.localScale;
 		slashOutline.SetActive (false);
 
+		leftWakePS = transform.FindChild ("SprayLeft").gameObject;
+		rightWakePS = transform.FindChild ("SprayRight").gameObject;
 		spriteR = GetComponent<SpriteRenderer> ();
 
 		slashLine = transform.FindChild ("SlashLine").GetComponent<LineRenderer>();
@@ -81,6 +84,8 @@ public class PlayerController : MonoBehaviour
 		// TODO(samkern): Need to tune movement.
 		if(Input.GetAxisRaw ("Horizontal") != 0 || Input.GetAxisRaw ("Vertical") != 0)
 			Rotate((Vector3)input, false);
+		else
+			transform.localScale = originalScale;
 		
 		transform.position = MoveRaycast(PlayerCamera.WrapWithinCameraBounds (newPosition));
 	}
@@ -128,22 +133,6 @@ public class PlayerController : MonoBehaviour
 			alreadyColliding = false;
 
 		return position;
-	}
-
-	private Vector3 SlashLinecast(Vector3 position, Vector3 newPosition)
-	{
-		if (slashLineCollide.enabled)
-			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer ("Debris"));
-		if(!hit) 
-			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer("Impassable"));
-		if (hit) {
-			animate.Stretch (new Vector3(2.0f, .2f, 0), .1f, true, true);
-			AudioManager.PlayPlayerWallHit ();
-			EndSlash ();
-			newPosition = hit.point - ((Vector2)transform.up * .30f);
-			alreadyColliding = true;
-		}
-		return newPosition;
 	}
 
 	private bool chargingSlash = false;
@@ -211,22 +200,6 @@ public class PlayerController : MonoBehaviour
 		else if(slashLineWrap.enabled) slashLineWrap.enabled = false;
 	}
 
-	private Vector3 SlashLineLinecast(Vector3 startLine, Vector3 endLine)
-	{
-		hit = Physics2D.Linecast (startLine, endLine, 1 << LayerMask.NameToLayer("Impassable"));
-		if (hit) return hit.point;
-		return endLine;
-	}
-
-	// returns Vector3.zero if we should NOT display the debris arrow.
-	private Vector3 SlashLineDebrisLinecast(Vector3 startLine, Vector3 endLine)
-	{
-		hit = Physics2D.Linecast (startLine, endLine, 1 << LayerMask.NameToLayer("Debris"));
-		if (hit && hit.collider.OverlapPoint((Vector2)endLine))
-			return hit.point;
-		return Vector3.zero;
-	}
-
 	private void ReleaseSlash() {
 		AudioManager.PlayPlayerBoostRelease ();
 
@@ -253,32 +226,65 @@ public class PlayerController : MonoBehaviour
 		if (savedSlashCharge <= slashIncrement.magnitude) {
 			newPosition = PlayerCamera.WrapWithinCameraBounds (transform.position + savedSlashCharge * slashDir);
 			gameObject.layer = LayerMask.NameToLayer ("Hero");
-			transform.position = SlashLinecast(transform.position, newPosition);
+			transform.position = SlashLinecast (transform.position, newPosition);
 			EndSlash ();
+			return;
 		} else {
 			if (PlayerCamera.PositionOutsideBounds (transform.position + slashIncrement)) {
 				slashLine.enabled = false;
 				// Do I need to do a raycast here? ... probs not, right?
 				transform.position = PlayerCamera.WrapWithinCameraBounds (transform.position + slashIncrement);
-			} 
-			else
-				transform.position = SlashLinecast(transform.position, transform.position + slashIncrement);
+			} else
+				transform.position = SlashLinecast (transform.position, transform.position + slashIncrement);
 
-			if (slashLineCollide.enabled) 	
+			if (slashLineCollide.enabled)
 				slashLineCollide.SetPosition (0, transform.position);
 			
-			if (slashLine.enabled) 			
+			if (slashLine.enabled)
 				slashLine.SetPosition (0, transform.position);
-			else  							
+			else
 				slashLineWrap.SetPosition (0, transform.position);
 
 			savedSlashCharge -= slashIncrement.magnitude;
-			Camera.main.SingleShake (savedSlashCharge/10, savedSlashCharge/10);
+			Camera.main.SingleShake (savedSlashCharge / 10, savedSlashCharge / 10);
+
+			float bgFactor = (slashChargeMax - savedSlashCharge) / slashChargeMax;
+			spriteR.color = new Color (1f, bgFactor, bgFactor, 1f);
+			Time.timeScale = Mathf.Clamp (Mathf.Lerp (startTimeScale, 1.0f, ((startSavedSlashCharge - (savedSlashCharge / 2)) / startSavedSlashCharge)), 0.0f, 1.0f);
+			Time.fixedDeltaTime = 0.02F * Time.timeScale;
 		}
-		float bgFactor = (slashChargeMax - savedSlashCharge) / slashChargeMax;
-		spriteR.color = new Color (1f, bgFactor, bgFactor, 1f);
-		Time.timeScale = Mathf.Clamp(Mathf.Lerp (startTimeScale,1.0f,((startSavedSlashCharge - (savedSlashCharge/2))/startSavedSlashCharge)), 0.0f, 1.0f);
-		Time.fixedDeltaTime = 0.02F * Time.timeScale;
+	}
+
+	private Vector3 SlashLinecast(Vector3 position, Vector3 newPosition)
+	{
+		if (slashLineCollide.enabled)
+			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer ("Debris"));
+		if(!hit) 
+			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer("Impassable"));
+		if (hit) {
+			animate.Stretch (new Vector3(2.0f, .2f, 0), .1f, true, true);
+			AudioManager.PlayPlayerWallHit ();
+			EndSlash ();
+			newPosition = hit.point - ((Vector2)transform.up * .30f);
+			alreadyColliding = true;
+		}
+		return newPosition;
+	}
+
+	private Vector3 SlashLineLinecast(Vector3 startLine, Vector3 endLine)
+	{
+		hit = Physics2D.Linecast (startLine, endLine, 1 << LayerMask.NameToLayer("Impassable"));
+		if (hit) return hit.point;
+		return endLine;
+	}
+
+	// returns Vector3.zero if we should NOT display the debris arrow.
+	private Vector3 SlashLineDebrisLinecast(Vector3 startLine, Vector3 endLine)
+	{
+		hit = Physics2D.Linecast (startLine, endLine, 1 << LayerMask.NameToLayer("Debris"));
+		if (hit && hit.collider.OverlapPoint((Vector2)endLine))
+			return hit.point;
+		return Vector3.zero;
 	}
 
 	private void EndSlash() {
