@@ -138,31 +138,17 @@ public class PlayerController : MonoBehaviour
 
 	private Vector3 SlashLinecast(Vector3 position, Vector3 newPosition)
 	{
-		if (slashLineCollide.enabled) {
+		if (slashLineCollide.enabled)
 			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer ("Debris"));
-			if (hit) {
-				if (!alreadyColliding) {
-					AudioManager.PlayPlayerWallHit ();
-					animate.Stretch (new Vector3(1.2f, .6f, 0), .1f, true, true);
-				}
-				KillSlashEarly ();
-				newPosition = hit.point - ((Vector2)transform.up * .30f);
-				alreadyColliding = true;
-				return newPosition;
-			}
-		}
-		
-		hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer("Impassable"));
+		if(!hit) 
+			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer("Impassable"));
 		if (hit) {
-			if (!alreadyColliding) {
-				AudioManager.PlayPlayerWallHit ();
-				animate.Stretch (new Vector3(1.2f, .6f, 0), .1f, true, true);
-			}
+			animate.Stretch (new Vector3(2.0f, .2f, 0), .1f, true, true);
+			AudioManager.PlayPlayerWallHit ();
 			KillSlashEarly ();
-			newPosition = hit.point - ((Vector2)transform.up * .35f);
+			newPosition = hit.point - ((Vector2)transform.up * .30f);
 			alreadyColliding = true;
 		}
-
 		return newPosition;
 	}
 
@@ -214,8 +200,7 @@ public class PlayerController : MonoBehaviour
 
 		Vector3 debrisHit = SlashLineDebrisLinecast (transform.position, slashVector);
 		if (debrisHit != Vector3.zero) {
-			if (!slashLineCollide.enabled)
-				slashLineCollide.enabled = true;
+			if (!slashLineCollide.enabled) slashLineCollide.enabled = true;
 			slashLineCollide.SetPosition (0, transform.position);
 			slashLineCollide.SetPosition (1, debrisHit);
 		}
@@ -233,8 +218,7 @@ public class PlayerController : MonoBehaviour
 	private Vector3 SlashLineLinecast(Vector3 startLine, Vector3 endLine)
 	{
 		hit = Physics2D.Linecast (startLine, endLine, 1 << LayerMask.NameToLayer("Impassable"));
-		if (hit)
-			return hit.point;
+		if (hit) return hit.point;
 		return endLine;
 	}
 
@@ -318,18 +302,16 @@ public class PlayerController : MonoBehaviour
 
 	public void OnCollisionEnter2D(Collision2D collision) {
 		if (LayerMask.LayerToName (collision.gameObject.layer) == "Enemy") {
-			if (savedSlashCharge > 0.0f) {
+			if (savedSlashCharge > 0.0f)
 				collision.gameObject.GetComponent <Enemy> ().Slashed ();
-			} else {
+			else
 				Die ();
-			}
 		}
 	}
 
 	public void OnTriggerEnter2D(Collider2D collider) {
-		if (LayerMask.LayerToName (collider.gameObject.layer) == "Projectile") {
+		if (LayerMask.LayerToName (collider.gameObject.layer) == "Projectile")
 			Die ();
-		}
 		else if(LayerMask.LayerToName (collider.gameObject.layer) == "BlueDot") {
 			if (collider.GetComponent<BlueDot> ().active) {
 				animate.ColorFade (Color.white, new Color (104.0f / 255.0f, 188.0f / 255.0f, 237.0f / 255.0f), 0.2f, true);
