@@ -3,18 +3,24 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour 
 {
-	private bool playerInputEnabled = true;
-	public static Transform hero;
 	private Vector2 input, inputPrev;
+	private bool playerInputEnabled = true;
+
+	public static Transform hero;
+	private SpriteRenderer spriteR;
+	private SpriteAnimate animate;
+	private LineRenderer slashLine, slashLineWrap, slashLineCollide;
 
 	private static GameObject slashOutline;
 	private Vector3 slashOutlineScale;
 	private Vector3 slashOutlineMaxScale = new Vector3(1.5f, 1.5f, 0);
 
-	private LineRenderer slashLine, slashLineWrap, slashLineCollide;
-	private SpriteRenderer spriteR;
+	private float runSpeed = 6f, walkSpeed = 2f;
+	private float currentSpeed = 0f;
 
-	private SpriteAnimate animate;
+	private Vector3 originalScale;
+
+	private static Vector3 newPosition;
 
 	void Start()
 	{
@@ -37,9 +43,6 @@ public class PlayerController : MonoBehaviour
 		slashLineCollide.enabled = false;
 	}
 
-	private static Vector3 newPosition;
-
-	//## UPDATE ##//
 	void Update () 
 	{
 		if (playerInputEnabled) 
@@ -62,21 +65,17 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	//## RUNNING ##//
-	private float runSpeed = 6f, walkSpeed = 2f;
-	private float moveSpeed = 0f;
-
 	private void Move() {
 		if (input == Vector2.zero) {
-			moveSpeed = 0;
+			currentSpeed = 0;
 			return;
 		}
 			
 		// Tune coefficients to control ramp up speed
-		moveSpeed = ((1 * moveSpeed) + (chargingSlash ? walkSpeed : runSpeed))/2;
-		//moveSpeed = Mathf.Clamp (moveSpeed + .3f, 0f, (chargingSlash ? walkSpeed : runSpeed));
+		currentSpeed = ((1 * currentSpeed) + (chargingSlash ? walkSpeed : runSpeed))/2;
+		//currentSpeed = Mathf.Clamp (currentSpeed + .3f, 0f, (chargingSlash ? walkSpeed : runSpeed));
 
-		Vector3 newPosition = transform.position + (Vector3)input * moveSpeed * Time.deltaTime;
+		Vector3 newPosition = transform.position + (Vector3)input * currentSpeed * Time.deltaTime;
 
 		// Smoothly rotate to face direction
 		// TODO(samkern): Need to tune movement.
@@ -86,22 +85,18 @@ public class PlayerController : MonoBehaviour
 		transform.position = MoveRaycast(PlayerCamera.WrapWithinCameraBounds (newPosition));
 	}
 
-	Vector3 originalScale;
-
 	private void Rotate(Vector3 dir, bool instant) {
 
-		if (transform.eulerAngles == dir)
-			return;
+		if (transform.eulerAngles == dir) return;
 
 		float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90;
 		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
-		if (instant)
-			transform.rotation = q;
+
+		if (instant) transform.rotation = q;
 		else {
 			transform.rotation = Quaternion.Slerp (transform.rotation, q, (Time.unscaledDeltaTime) * 8.0f);
 			float rotAngle = Quaternion.Angle (transform.rotation, q);
-			moveSpeed = Mathf.Clamp(moveSpeed - (moveSpeed * (rotAngle / 1080)), 0, moveSpeed);
-			//animate.Stretch (new Vector3((1 - rotAngle/720),0,0), 0.0f, true, true);
+			currentSpeed = Mathf.Clamp(currentSpeed - (currentSpeed * (rotAngle / 1080)), 0, currentSpeed);
 			Vector3 scale = originalScale;
 			scale.x *= (1 - rotAngle / 360);
 			scale.y *= (1 + rotAngle / 360);
@@ -128,10 +123,9 @@ public class PlayerController : MonoBehaviour
 			}
 			position = hit.point - ((Vector2)transform.up * .30f);
 			alreadyColliding = true;
-			moveSpeed = 0;
-		} else {
+			currentSpeed = 0;
+		} else
 			alreadyColliding = false;
-		}
 
 		return position;
 	}
@@ -145,7 +139,7 @@ public class PlayerController : MonoBehaviour
 		if (hit) {
 			animate.Stretch (new Vector3(2.0f, .2f, 0), .1f, true, true);
 			AudioManager.PlayPlayerWallHit ();
-			KillSlashEarly ();
+			EndSlash ();
 			newPosition = hit.point - ((Vector2)transform.up * .30f);
 			alreadyColliding = true;
 		}
@@ -164,6 +158,9 @@ public class PlayerController : MonoBehaviour
 	private Vector3 slashDir;
 	private float savedSlashCharge = 0.0f;
 
+	private float startSavedSlashCharge;
+	private float startTimeScale;
+
 	private void BeginSlash() {
 		Camera.main.LockCamera ();
 		chargingSlash = true;
@@ -178,8 +175,7 @@ public class PlayerController : MonoBehaviour
 	private void ChargeSlash() {
 		slashCharge = Mathf.Min(slashCharge + Time.unscaledDeltaTime * slashChargeRate, slashChargeMax);
 		float bgFactor = (slashChargeMax - slashCharge)/slashChargeMax;
-		Color color = new Color (1f, bgFactor, bgFactor, 1f);
-		spriteR.color = color;
+		spriteR.color = new Color (1f, bgFactor, bgFactor, 1f);
 
 		if (slashOutline.activeSelf) {
 			slashOutline.transform.localScale = slashOutlineScale + (slashOutlineMaxScale * bgFactor);
@@ -187,7 +183,7 @@ public class PlayerController : MonoBehaviour
 				slashOutline.SetActive (false);
 		}
 
-		// This is stupid just Lerp properly 
+		// This is stupid just lerp properly 
 		Time.timeScale = Mathf.Clamp(Mathf.Lerp (0f,1.0f, bgFactor/2), 0.2f, 1.0f);
 		Time.fixedDeltaTime = 0.02F * Time.timeScale;
 
@@ -251,34 +247,30 @@ public class PlayerController : MonoBehaviour
 		startTimeScale = Time.timeScale;
 	}
 
-	private float startSavedSlashCharge;
-	private float startTimeScale;
-
 	private void ApplySlashDistance () {
 		Vector3 newPosition;
 		Vector3 slashIncrement = slashDir * Time.unscaledDeltaTime * slashSpeed;
 		if (savedSlashCharge <= slashIncrement.magnitude) {
 			newPosition = PlayerCamera.WrapWithinCameraBounds (transform.position + savedSlashCharge * slashDir);
-			savedSlashCharge = 0;
-			slashLine.enabled = false;
-			slashLineWrap.enabled = false;
-			slashLineCollide.enabled = false;
-			Camera.main.ReturnScreen ();
 			gameObject.layer = LayerMask.NameToLayer ("Hero");
 			transform.position = SlashLinecast(transform.position, newPosition);
-			Time.timeScale = 1.0f;
-			Time.fixedDeltaTime = 0.02F * Time.timeScale;
+			EndSlash ();
 		} else {
 			if (PlayerCamera.PositionOutsideBounds (transform.position + slashIncrement)) {
 				slashLine.enabled = false;
 				// Do I need to do a raycast here? ... probs not, right?
 				transform.position = PlayerCamera.WrapWithinCameraBounds (transform.position + slashIncrement);
-			} else
+			} 
+			else
 				transform.position = SlashLinecast(transform.position, transform.position + slashIncrement);
 
-			if (slashLineCollide.enabled) 	slashLineCollide.SetPosition (0, transform.position);
-			if (slashLine.enabled) 			slashLine.SetPosition (0, transform.position);
-			else  							slashLineWrap.SetPosition (0, transform.position);
+			if (slashLineCollide.enabled) 	
+				slashLineCollide.SetPosition (0, transform.position);
+			
+			if (slashLine.enabled) 			
+				slashLine.SetPosition (0, transform.position);
+			else  							
+				slashLineWrap.SetPosition (0, transform.position);
 
 			savedSlashCharge -= slashIncrement.magnitude;
 			Camera.main.SingleShake (savedSlashCharge/10, savedSlashCharge/10);
@@ -289,15 +281,15 @@ public class PlayerController : MonoBehaviour
 		Time.fixedDeltaTime = 0.02F * Time.timeScale;
 	}
 
-	private void KillSlashEarly() {
+	private void EndSlash() {
 		savedSlashCharge = 0;
 		slashLine.enabled = false;
 		slashLineWrap.enabled = false;
 		slashLineCollide.enabled = false;
 		Camera.main.ReturnScreen ();
-		spriteR.color = Color.white;
 		Time.timeScale = 1.0f;
 		Time.fixedDeltaTime = 0.02F * Time.timeScale;
+		spriteR.color = Color.white;
 	}
 
 	public void OnCollisionEnter2D(Collision2D collision) {
@@ -314,7 +306,7 @@ public class PlayerController : MonoBehaviour
 			Die ();
 		else if(LayerMask.LayerToName (collider.gameObject.layer) == "BlueDot") {
 			if (collider.GetComponent<BlueDot> ().active) {
-				animate.ColorFade (Color.white, new Color (104.0f / 255.0f, 188.0f / 255.0f, 237.0f / 255.0f), 0.2f, true);
+				animate.ColorFade (Color.white, new Color (.4f, .74f, .93f), 0.2f, true);
 				animate.Stretch (new Vector3 (1.6f, 1.6f, 0), .2f, true, true);
 			}
 		}
