@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
 	private SpriteRenderer spriteR;
 	private SpriteAnimate animate;
 	private LineRenderer slashLine, slashLineWrap, slashLineCollide;
-	private GameObject leftWakePS, rightWakePS;
+	private ParticleSystem sprayPS;
 
 	private static GameObject slashOutline;
 	private Vector3 slashOutlineScale;
@@ -31,8 +31,7 @@ public class PlayerController : MonoBehaviour
 		slashOutlineScale = slashOutline.transform.localScale;
 		slashOutline.SetActive (false);
 
-		leftWakePS = transform.FindChild ("SprayLeft").gameObject;
-		rightWakePS = transform.FindChild ("SprayRight").gameObject;
+		sprayPS = transform.FindChild ("Spray").GetComponent<ParticleSystem>();
 		spriteR = GetComponent<SpriteRenderer> ();
 
 		slashLine = transform.FindChild ("SlashLine").GetComponent<LineRenderer>();
@@ -237,6 +236,8 @@ public class PlayerController : MonoBehaviour
 			} else
 				transform.position = SlashLinecast (transform.position, transform.position + slashIncrement);
 
+			SlashingThroughWater ();
+
 			if (slashLineCollide.enabled)
 				slashLineCollide.SetPosition (0, transform.position);
 			
@@ -272,6 +273,11 @@ public class PlayerController : MonoBehaviour
 			alreadyColliding = true;
 		}
 		return newPosition;
+	}
+
+	private void SlashingThroughWater() {
+		hit = Physics2D.Raycast (transform.position, Vector2.up, .1f, 1 << LayerMask.NameToLayer ("Debris"));
+		if(hit) sprayPS.Emit (2);
 	}
 
 	private Vector3 SlashLineLinecast(Vector3 startLine, Vector3 endLine)
