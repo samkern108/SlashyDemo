@@ -5,13 +5,14 @@ using UnityEngine;
 public class LevelMaster : MonoBehaviour {
 
 	/** DEBUGGING **/
-	private static int levelCapOverride = 100;
+	private static int levelCapOverride = 4;
 	/** DEBUGGING **/
 
 	public static int level = 1;
 	public static int enemiesRemaining = 0;
 	private static int blueDotsRemaining = 0;
 	public static GameObject levelContainer;
+	public static Transform lmTransform;
 	public static GameObject hero, heroPrefab;
 
 	public static float[] highScoreTable = new float[10];
@@ -20,6 +21,7 @@ public class LevelMaster : MonoBehaviour {
 	private static Vector3 playerRespawnPos = new Vector3(0,0,0);
 
 	void Start () {
+		lmTransform = this.transform;
 		IOManager.Initialize ();
 		ParticleManager.Initialize ();
 		AudioManager.Initialize ();
@@ -35,7 +37,7 @@ public class LevelMaster : MonoBehaviour {
 
 	public static void InitHero(Vector3 spawnPosition) {
 		if(hero) Destroy (hero);
-		hero = Instantiate (heroPrefab);
+		hero = Instantiate (heroPrefab, lmTransform);
 		spawnPosition.z = 0;
 		hero.transform.position = spawnPosition;
 	}
@@ -84,9 +86,9 @@ public class LevelMaster : MonoBehaviour {
 	}
 
 	public static void Victory() {
-		Notifications.self.SendGameEndNotification (true);
 		float score = UIManager.timerMin * 60 + UIManager.timerSec;
 		UpdateHighScores (score);
+		Notifications.self.SendGameEndNotification (true);
 	}
 
 	public static void Defeat() {
