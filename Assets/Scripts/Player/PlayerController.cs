@@ -338,4 +338,12 @@ public class PlayerController : MonoBehaviour
 
 		Destroy (this.gameObject);
 	}
+
+	public void GameEnd(bool victory) {
+		playerInputEnabled = false;
+	}
+
+	public void Restart() {
+		playerInputEnabled = true;
+	}
 } 
