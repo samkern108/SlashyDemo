@@ -264,20 +264,13 @@ public class PlayerController : MonoBehaviour
 			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer ("Impassable"));
 
 		if (hit) {
-			if (!alreadyColliding) {
-				AudioManager.PlayPlayerWallHit ();
-				animate.Stretch (new Vector3 (1.2f, .6f, 0), .1f, true, true);
-			}
+			AudioManager.PlayPlayerWallHit ();
+			animate.Stretch (new Vector3 (2.0f, 0.2f, 0), .1f, true, true);
 			EndSlash ();
 			newPosition = hit.point - ((Vector2)transform.up * .30f);
 			alreadyColliding = true;
 		}
 		return newPosition;
-	}
-
-	private void SlashingThroughWater() {
-		hit = Physics2D.Raycast (transform.position, Vector2.up, .1f, 1 << LayerMask.NameToLayer ("Debris"));
-		if(hit) sprayPS.Emit (2);
 	}
 
 	private Vector3 SlashLineLinecast(Vector3 startLine, Vector3 endLine)
@@ -294,6 +287,11 @@ public class PlayerController : MonoBehaviour
 		if (hit && hit.collider.OverlapPoint((Vector2)endLine))
 			return hit.point;
 		return Vector3.zero;
+	}
+
+	private void SlashingThroughWater() {
+		hit = Physics2D.Raycast (transform.position, Vector2.up, .1f, 1 << LayerMask.NameToLayer ("Debris"));
+		if(hit) sprayPS.Emit (2);
 	}
 
 	private void EndSlash() {
