@@ -5,7 +5,7 @@ using UnityEngine;
 public class Particle : MonoBehaviour {
 
 	void Start () {
-		Invoke ("KillSelf", GetComponent<ParticleSystem>().main.duration);
+		Invoke ("KillSelf", GetComponent<ParticleSystem>().main.duration - .1f);
 	}
 	
 	void KillSelf () {
