@@ -11,7 +11,6 @@ public class Enemy : Slashable {
 	void Start () {
 		animate = GetComponent <SpriteAnimate>();
 		animate.Stretch (new Vector3(0,0,0),1.0f,false,false);
-		LevelMaster.enemiesRemaining++;
 
 		if (!missilePrefab)
 			missilePrefab = ResourceLoader.LoadPrefab ("Projectile");
