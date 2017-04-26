@@ -110,14 +110,13 @@ public class LevelMaster : MonoBehaviour {
 	}
 
 	private static void UpdateHighScores(float score) {
-		Debug.Log ("Score: " + score);
 		bool dirty = false;
 		string name = "";
 		string nameTemp = "";
 		float scoreComp = score;
 		float scoreCompTemp = score;
 		for(int i = 0; i < highScoreTable.Length; i++) {
-			if (scoreComp < highScoreTable [i]) {
+			if (scoreComp < highScoreTable [i] || highScoreTable [i] == 0) {
 				PlayerPrefs.SetFloat ("HighScore" + i,scoreComp);
 				PlayerPrefs.SetString ("HighScoreName" + i, name);
 

@@ -32,6 +32,7 @@ public class UIManager : MonoBehaviour {
 	public void Start()
 	{
 		highScoreRow = ResourceLoader.LoadPrefab ("HighScoreRow");
+		MakeHighScoreRows ();
 	}
 
 	public void Update()
@@ -109,19 +110,27 @@ public class UIManager : MonoBehaviour {
 
 	private static int highScoreRowHeight = 30, highScoreXOffset = 60;
 
-	private void DisplayHighScores() {
+	private void MakeHighScoreRows() {
 		GameObject row;
-		for (int i = 0; i < Mathf.CeilToInt(LevelMaster.highScoreTable.Length/2); i++) {
+		int halfway = Mathf.CeilToInt (LevelMaster.highScoreTable.Length / 2);
+		for (int i = 0; i < halfway; i++) {
 			row = Instantiate (highScoreRow);
+			row.name = "ScoreRow" + i;
 			row.transform.SetParent (victoryPanel.transform.FindChild("ScoresTable"));
 			row.transform.localPosition = new Vector3 (-highScoreXOffset, -(highScoreRowHeight * i));
-			row.transform.FindChild ("Score").GetComponent<Text>().text = "" + ScoreAsString(LevelMaster.highScoreTable[i]);
-			row.transform.FindChild ("Name").GetComponent<Text>().text = LevelMaster.highScoreNames[i];
-		}
-		for (int i = 0; i < Mathf.FloorToInt(LevelMaster.highScoreTable.Length/2); i++) {
+
 			row = Instantiate (highScoreRow);
+			row.name = "ScoreRow" + (i + halfway);
 			row.transform.SetParent (victoryPanel.transform.FindChild("ScoresTable"));
 			row.transform.localPosition = new Vector3 (highScoreXOffset, -(highScoreRowHeight * i));
+		}
+	}
+
+	private void DisplayHighScores() {
+		Transform table = victoryPanel.transform.FindChild ("ScoresTable");
+		Transform row;
+		for (int i = 0; i < LevelMaster.highScoreTable.Length; i++) {
+			row = table.FindChild ("ScoreRow" + i).transform;
 			row.transform.FindChild ("Score").GetComponent<Text>().text = "" + ScoreAsString(LevelMaster.highScoreTable[i]);
 			row.transform.FindChild ("Name").GetComponent<Text>().text = LevelMaster.highScoreNames[i];
 		}
