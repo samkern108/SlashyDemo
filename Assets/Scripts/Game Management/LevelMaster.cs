@@ -5,7 +5,7 @@ using UnityEngine;
 public class LevelMaster : MonoBehaviour {
 
 	/** DEBUGGING **/
-	private static int levelCapOverride = 4;
+	private static int levelCapOverride = 3;
 	/** DEBUGGING **/
 
 	public static int level = 1;
@@ -86,7 +86,7 @@ public class LevelMaster : MonoBehaviour {
 	}
 
 	public static void Victory() {
-		float score = UIManager.timerMin * 60 + UIManager.timerSec;
+		float score = UIManager.self.ScoreAsFloat();
 		UpdateHighScores (score);
 		Notifications.self.SendGameEndNotification (true);
 	}
@@ -110,6 +110,7 @@ public class LevelMaster : MonoBehaviour {
 	}
 
 	private static void UpdateHighScores(float score) {
+		Debug.Log ("Score: " + score);
 		bool dirty = false;
 		string name = "";
 		string nameTemp = "";

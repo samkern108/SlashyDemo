@@ -59,18 +59,7 @@ public class UIManager : MonoBehaviour {
 
 	public void UpdateTimerText()
 	{
-		string minText = timerMin + "";
-		int floorSeconds = (int)Mathf.Floor (timerSec);
-		string secText = floorSeconds + "";
-		int milis = (int)((timerSec - floorSeconds) * 10);
-		string milisText = milis + "";
-
-		if (timerMin < 10)
-			minText = "0" + minText;
-		if (timerSec < 10)
-			secText = "0" + secText;
-			
-		timerText.text = minText + ":" + secText + ":" + milisText;
+		timerText.text = ScoreAsString (ScoreAsFloat());
 	}
 
 	public void DisplaySpaceToSlash(bool display)
@@ -126,15 +115,36 @@ public class UIManager : MonoBehaviour {
 			row = Instantiate (highScoreRow);
 			row.transform.SetParent (victoryPanel.transform.FindChild("ScoresTable"));
 			row.transform.localPosition = new Vector3 (-highScoreXOffset, -(highScoreRowHeight * i));
-			row.transform.FindChild ("Score").GetComponent<Text>().text = "" + LevelMaster.highScoreTable[i];
+			row.transform.FindChild ("Score").GetComponent<Text>().text = "" + ScoreAsString(LevelMaster.highScoreTable[i]);
 			row.transform.FindChild ("Name").GetComponent<Text>().text = LevelMaster.highScoreNames[i];
 		}
 		for (int i = 0; i < Mathf.FloorToInt(LevelMaster.highScoreTable.Length/2); i++) {
 			row = Instantiate (highScoreRow);
 			row.transform.SetParent (victoryPanel.transform.FindChild("ScoresTable"));
 			row.transform.localPosition = new Vector3 (highScoreXOffset, -(highScoreRowHeight * i));
-			row.transform.FindChild ("Score").GetComponent<Text>().text = "" + LevelMaster.highScoreTable[i];
+			row.transform.FindChild ("Score").GetComponent<Text>().text = "" + ScoreAsString(LevelMaster.highScoreTable[i]);
 			row.transform.FindChild ("Name").GetComponent<Text>().text = LevelMaster.highScoreNames[i];
 		}
+	}
+
+	public float ScoreAsFloat() {
+		return UIManager.timerMin * 60 + UIManager.timerSec;
+	}
+
+	public string ScoreAsString(float scoreFloat) {
+		int minutes = Mathf.FloorToInt(scoreFloat / 60);
+		int seconds = Mathf.FloorToInt(scoreFloat % 60);
+		int milliseconds = (int)(((scoreFloat % 60) - seconds) * 10);
+			
+		string minText = minutes + "";
+		string secText = seconds + "";
+		string millisText = milliseconds + "";
+
+		if (timerMin < 10)
+			minText = "0" + minText;
+		if (timerSec < 10)
+			secText = "0" + secText;
+
+		return minText + ":" + secText + ":" + millisText;
 	}
 }
