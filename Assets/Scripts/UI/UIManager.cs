@@ -92,10 +92,21 @@ public class UIManager : MonoBehaviour {
 		victoryPanel.SetActive (false);		
 	}
 
+	public string scoreName = "SAM";
+
+	public void UpdateScoreName(string name) {
+		scoreName = name;
+	}
+
 	public void Restart() {
 		levelText.enabled = true;
 		gameOverPanel.SetActive (false);
 		victoryPanel.SetActive (false);
+
+		if (victoryPanel.transform.FindChild ("NameInput").gameObject.activeInHierarchy) {
+			LevelMaster.SaveHighScoreName (0, scoreName);
+			victoryPanel.transform.FindChild ("NameInput").gameObject.SetActive (false);
+		}
 
 		timing = true;
 		timerMin = 0.0f;
@@ -106,6 +117,11 @@ public class UIManager : MonoBehaviour {
 	public void LevelLoaded(int level) {
 		UIManager.self.ShowLevelNumber (level);
 		timing = true;
+	}
+
+	public void ShowInputHighScoreName (int index) {
+		string name;
+		victoryPanel.transform.FindChild ("NameInput").gameObject.SetActive (true);
 	}
 
 	private static int highScoreRowHeight = 30, highScoreXOffset = 60;

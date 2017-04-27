@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class Enemy : Slashable {
 
-	private SpriteAnimate animate;
+	private Animator animator;
 	private static GameObject missilePrefab;
-	public float shootTimer = 0.5f;
+	public float shootTimer = 0.4f;
 
 	void Start () {
-		animate = GetComponent <SpriteAnimate>();
-		animate.Stretch (new Vector3(0,0,0),1.0f,false,false);
+		animator = GetComponent <Animator>();
+		animator.SetTrigger ("Spawn");
 
 		if (!missilePrefab)
 			missilePrefab = ResourceLoader.LoadPrefab ("Projectile");
@@ -33,7 +33,7 @@ public class Enemy : Slashable {
 		missile.transform.position = this.transform.position;
 		missile.GetComponent<Projectile>().Initialize (shootDirection);
 
-		animate.Stretch (new Vector3(1.2f, 1.2f, 1.2f), .2f, true, true);
+		animator.SetTrigger ("Shoot");
 		AudioManager.PlayShoot ();
 	}
 

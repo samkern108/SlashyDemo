@@ -5,7 +5,7 @@ using UnityEngine;
 public class LevelMaster : MonoBehaviour {
 
 	/** DEBUGGING **/
-	private static int levelCapOverride = 3;
+	private static int levelCapOverride = 30;
 	/** DEBUGGING **/
 
 	public static int level = 1;
@@ -112,25 +112,36 @@ public class LevelMaster : MonoBehaviour {
 	private static void UpdateHighScores(float score) {
 		bool dirty = false;
 		string name = "";
-		string nameTemp = "";
+		string nameTemp = "new";
 		float scoreComp = score;
 		float scoreCompTemp = score;
 		for(int i = 0; i < highScoreTable.Length; i++) {
 			if (scoreComp < highScoreTable [i] || highScoreTable [i] == 0) {
+				// This is the player's high score!!
+				// Color it yellow or some shit.
+				if (name == "" && nameTemp == "new") {
+					UIManager.self.ShowInputHighScoreName (i);
+					nameTemp = "";
+				} else {
+					PlayerPrefs.SetString ("HighScoreName" + i, name);
+					nameTemp = name;
+					name = highScoreNames [i];
+					highScoreNames [i] = nameTemp;
+				}
 				PlayerPrefs.SetFloat ("HighScore" + i,scoreComp);
-				PlayerPrefs.SetString ("HighScoreName" + i, name);
 
 				scoreCompTemp = scoreComp;
 				scoreComp = highScoreTable [i];
 				highScoreTable [i] = scoreCompTemp;
 
-				nameTemp = name;
-				name = highScoreNames [i];
-				highScoreNames [i] = nameTemp;
-
 				dirty = true;
 			}
 		}
 		if(dirty) PlayerPrefs.Save ();
+	}
+
+	public static void SaveHighScoreName (int index, string name) {
+		PlayerPrefs.SetString ("HighScoreName" + index, name);
+		PlayerPrefs.Save ();
 	}
 }
