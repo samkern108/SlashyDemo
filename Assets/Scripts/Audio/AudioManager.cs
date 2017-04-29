@@ -8,7 +8,7 @@ public class AudioManager : MonoBehaviour {
 	public static AudioManager instance;
 
 	public static AudioClip projectileShoot, projectileExplode, 
-	playerBoostCharge, playerBoostRelease, playerWallHit, playerTurn, playerDeath,
+	playerBoostCharge, playerBoostRelease, playerWallHit, playerTurn, playerMove, playerDeath,
 	levelComplete, gameStart, 
 	dotPickup;
 
@@ -16,7 +16,7 @@ public class AudioManager : MonoBehaviour {
 	private static int activeSources = 0;
 	private static List<AudioSource> freeSources = new List<AudioSource>();
 
-	public static AudioSource dotAS, playerAS;
+	public static AudioSource dotAS, playerAS, playerMoveAS;
 
 	public void Awake() {
 		instance = this;
@@ -26,14 +26,16 @@ public class AudioManager : MonoBehaviour {
 
 		dotAS = transform.FindChild ("DotAS").GetComponent<AudioSource>();
 		playerAS = transform.FindChild ("PlayerAS").GetComponent<AudioSource>();
+		//playerMoveAS = transform.FindChild ("PlayerMoveAS").GetComponent<AudioSource>();
 	}
 
 	public static void Initialize () {
 		projectileShoot = ResourceLoader.LoadAudioClip ("Shoot");
-		projectileExplode = ResourceLoader.LoadAudioClip ("Projectile Explode");
+		projectileExplode = ResourceLoader.LoadAudioClip ("Projectile Hit Wall");
 		playerBoostCharge = ResourceLoader.LoadAudioClip ("Player Boost Charge");
-		playerBoostRelease = ResourceLoader.LoadAudioClip ("Player Boost Release");
+		playerBoostRelease = ResourceLoader.LoadAudioClip ("Player Boost 6");
 		playerWallHit = ResourceLoader.LoadAudioClip ("Player Wall Hit");
+		//playerMove = ResourceLoader.LoadAudioClip ("Player Move");
 		playerTurn = ResourceLoader.LoadAudioClip ("Player Turn");
 		playerDeath = ResourceLoader.LoadAudioClip ("Player Death");
 		levelComplete = ResourceLoader.LoadAudioClip ("Level Complete");
@@ -42,6 +44,16 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	private static bool resetPickup = true;
+	/*private static bool playPlayerMove = false;
+
+	public void PlayPlayerMove(bool play) {
+		playPlayerMove = play;
+	}
+
+	private void RepeatPlayerMove() {
+		if(playPlayerMove)
+			playerMoveAS.PlayOneShot (playerMove);
+	}*/
 		
 	public void PlayDotPickup() {
 		if (resetPickup) {
@@ -49,8 +61,9 @@ public class AudioManager : MonoBehaviour {
 			dotAS.pitch = .55f;
 		}
 
+		dotAS.volume = .7f;
 		dotAS.PlayOneShot (dotPickup);
-		dotAS.pitch += .25f;
+		dotAS.pitch += .26f;
 	}
 		
 	public void LevelLoaded(int level) {
@@ -58,50 +71,84 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	public static void PlayPlayerDeath() {
+		playerAS.volume = .9f;
+		playerAS.pitch = Random.Range (.8f, 1.1f);
 		playerAS.PlayOneShot (playerDeath);
 	}
 
+	private static bool playerTurnSafeToPlay = true;
+
 	public static void PlayPlayerTurn() {
+		if (!playerTurnSafeToPlay) return;
+		playerTurnSafeToPlay = false;
+		playerAS.volume = Random.Range(.2f, .4f);
+		playerAS.pitch = Random.Range(.6f, .8f);
 		playerAS.PlayOneShot (playerTurn);
+		AudioManager.instance.Invoke ("PlayerTurnSafeToPlay", playerTurn.length/3);
+	}
+
+	private void PlayerTurnSafeToPlay() {
+		playerTurnSafeToPlay = true;
 	}
 
 	public static void PlayPlayerBoostCharge() {
 		playerAS.PlayOneShot (playerBoostCharge);
 	}
 
-	public static void PlayPlayerBoostRelease() {
+	public static void PlayPlayerBoostRelease(float strength, float volume) {
 		playerAS.PlayOneShot (playerBoostRelease);
+		playerAS.volume = volume;
+		playerAS.pitch = strength;
 	}
 
+	private static bool wallHitSafeToPlay = true;
+
 	public static void PlayPlayerWallHit() {
+		if (!wallHitSafeToPlay) return;
+
+		playerAS.volume = .9f;
+		playerAS.pitch = Random.Range (.8f, 1.2f);
 		playerAS.PlayOneShot (playerTurn);
+		wallHitSafeToPlay = false;
+		AudioManager.instance.Invoke ("WallHitSafeToPlay", .2f);
+	}
+
+	private void WallHitSafeToPlay() {
+		wallHitSafeToPlay = true;
 	}
 
 	public static void PlayShoot() {
-		AudioSource source;
+		AudioSource source = GetFreeAudioSource(projectileShoot.length);
+		source.volume = Random.Range (.4f, .8f);
+		source.pitch = Random.Range (.8f, 1.2f);
+		source.PlayOneShot (projectileShoot);
+	}
+
+	public static void PlayProjectileExplode() {
+		AudioSource source = GetFreeAudioSource(projectileExplode.length);
+		source.volume = Random.Range (.2f, .4f);
+		source.pitch = Random.Range (1.0f, 1.8f);
+		source.PlayOneShot (projectileExplode);
+	}
+
+	private static AudioSource GetFreeAudioSource(float recycleTime) {
 		if (freeSources.Count == 0) {
 			GameObject obj = Instantiate (sourceTemplate);
 			obj.transform.SetParent (AudioManager.instance.transform);
-			source = obj.GetComponent <AudioSource>();
 			activeSources++;
+			return obj.GetComponent <AudioSource>();
 		}
 		else {
 			// Race condition?
-			source = freeSources[0];
+			AudioSource source = freeSources[0];
 			freeSources.RemoveAt (0);
 			// Figure out a better way to determine if sources can be removed.
 			if (freeSources.Count >= (int)Mathf.Ceil (activeSources / 2)) {
 				freeSources.RemoveRange (0, (int)Mathf.Floor (activeSources / 2));
 			}
+			Timing.RunCoroutine (RecycleSource(recycleTime + .1f, source));
+			return source;
 		}
-		source.PlayOneShot (projectileShoot);
-		source.pitch = Random.Range (.8f, 1.2f);
-		float wait = projectileShoot.length;
-		Timing.RunCoroutine (RecycleSource(wait, source));
-	}
-
-	public static void PlayProjectileExplode() {
-		
 	}
 
 	private static IEnumerator<float> RecycleSource (float wait, AudioSource source) {

@@ -4,11 +4,15 @@ using System.Collections;
 public class PlayerCamera : MonoBehaviour {
 
 	public static Camera thisCamera;
+	public static float originalSize;
+	public static Vector3 originalPosition;
 	private static GameObject hero;
 
 	public void Start() {
 		// Hacky
 		thisCamera = Camera.main;
+		originalSize = thisCamera.orthographicSize;
+		originalPosition = thisCamera.transform.position;
 		hero = GameObject.Find ("Hero");
 	}
 
@@ -50,6 +54,14 @@ public class PlayerCamera : MonoBehaviour {
 			newPosition.y = BoundsMax ().y;
 
 		return newPosition;
+	}
+
+	public static Vector3 GetVectorToCameraBoundsWrapped(Vector3 oldPosition, Vector3 newPosition) {
+		Vector3 playerLine = newPosition - oldPosition;
+		Vector3 wrapped = WrapWithinCameraBounds(newPosition);
+		wrapped -= playerLine;
+
+		return wrapped;//GetVectorToCameraBounds(wrapped);
 	}
 
 	public static Vector2 BoundsMin()

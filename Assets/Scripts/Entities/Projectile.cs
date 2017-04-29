@@ -44,4 +44,8 @@ public class Projectile : MonoBehaviour {
 	public void GameEnd(bool victory) {
 		moveSpeed = 0f;
 	}
+
+	public void Respawn() {
+		Destroy (this.gameObject);
+	}
 }

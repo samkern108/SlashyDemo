@@ -10,13 +10,13 @@ public class PlayerController : MonoBehaviour
 	private SpriteRenderer spriteR;
 	private SpriteAnimate animate;
 	private LineRenderer slashLine, slashLineWrap, slashLineCollide;
-	private ParticleSystem sprayPS;
+	private ParticleSystem sprayPS, dashPS;
 
 	private static GameObject slashOutline;
 	private Vector3 slashOutlineScale;
 	private Vector3 slashOutlineMaxScale = new Vector3(1.5f, 1.5f, 0);
 
-	private float runSpeed = 6f, walkSpeed = 2f;
+	private float runSpeed = 5.5f, walkSpeed = 3f;
 	private float currentSpeed = 0f;
 
 	private Vector3 originalScale;
@@ -30,6 +30,9 @@ public class PlayerController : MonoBehaviour
 		slashOutline = transform.FindChild ("SlashOutline").gameObject;
 		slashOutlineScale = slashOutline.transform.localScale;
 		slashOutline.SetActive (false);
+
+		dashPS = transform.FindChild ("Dash").GetComponent<ParticleSystem>();
+		dashPS.Stop ();
 
 		sprayPS = transform.FindChild ("Spray").GetComponent<ParticleSystem>();
 		spriteR = GetComponent<SpriteRenderer> ();
@@ -105,6 +108,9 @@ public class PlayerController : MonoBehaviour
 			scale.x *= (1 - rotAngle / 360);
 			scale.y *= (1 + rotAngle / 360);
 			transform.localScale = scale;
+			if (rotAngle > 90) {
+				AudioManager.PlayPlayerTurn ();
+			}
 			//if (Quaternion.Angle (transform.rotation, q) > 50.0f)
 			//	AudioManager.PlayPlayerTurn ();
 		}
@@ -193,14 +199,15 @@ public class PlayerController : MonoBehaviour
 		if (PlayerCamera.PositionOutsideBounds(slashVector)) {
 			if(!slashLineWrap.enabled) slashLineWrap.enabled = true;
 
-			slashLineWrap.SetPosition (0, PlayerCamera.WrapWithinCameraBounds (slashVector));
+			slashLineWrap.SetPosition (0, PlayerCamera.GetVectorToCameraBoundsWrapped (transform.position, slashVector));
 			slashLineWrap.SetPosition (1, PlayerCamera.WrapWithinCameraBounds (slashVector) + (slashVector - PlayerCamera.GetVectorToCameraBounds (slashVector)));
 		} 
 		else if(slashLineWrap.enabled) slashLineWrap.enabled = false;
 	}
 
 	private void ReleaseSlash() {
-		AudioManager.PlayPlayerBoostRelease ();
+		AudioManager.PlayPlayerBoostRelease (slashCharge.Map(0, slashChargeMax, 1.2f, .8f), slashCharge.Map(0, slashChargeMax, .5f, 1f));
+		//dashPS.Play ();
 
 		slashOutline.transform.localScale = slashOutlineScale;
 		slashOutline.SetActive (false);
@@ -211,7 +218,8 @@ public class PlayerController : MonoBehaviour
 
 		if (slashLineCollide.enabled) slashLine.enabled = false;
 
-		Camera.main.StartShake (slashCharge/30, slashCharge/30);
+		Camera.main.StartShake (slashCharge/15, slashCharge/15, true);
+		Camera.main.RestoreSize (1.0f);
 		slashCharge = 0.0f;
 		gameObject.layer = LayerMask.NameToLayer ("SlashingHero");
 
@@ -224,7 +232,6 @@ public class PlayerController : MonoBehaviour
 		Vector3 slashIncrement = slashDir * Time.unscaledDeltaTime * slashSpeed;
 		if (savedSlashCharge <= slashIncrement.magnitude) {
 			newPosition = PlayerCamera.WrapWithinCameraBounds (transform.position + savedSlashCharge * slashDir);
-			gameObject.layer = LayerMask.NameToLayer ("Hero");
 			transform.position = SlashLinecast (transform.position, newPosition);
 			EndSlash ();
 			return;
@@ -258,6 +265,7 @@ public class PlayerController : MonoBehaviour
 
 	private Vector3 SlashLinecast(Vector3 position, Vector3 newPosition)
 	{
+		// Determine if we should run into a wall or into debris
 		if (slashLineCollide.enabled)
 			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer ("Debris"));
 		else
@@ -276,6 +284,7 @@ public class PlayerController : MonoBehaviour
 	private Vector3 SlashLineLinecast(Vector3 startLine, Vector3 endLine)
 	{
 		hit = Physics2D.Linecast (startLine, endLine, 1 << LayerMask.NameToLayer("Impassable"));
+		//return hit ? hit.point : endLine;
 		if (hit) return hit.point;
 		return endLine;
 	}
@@ -290,11 +299,13 @@ public class PlayerController : MonoBehaviour
 	}
 
 	private void SlashingThroughWater() {
-		hit = Physics2D.Raycast (transform.position, Vector2.up, .1f, 1 << LayerMask.NameToLayer ("Debris"));
-		if(hit) sprayPS.Emit (2);
+		//hit = Physics2D.Raycast (transform.position, Vector2.up, .1f, 1 << LayerMask.NameToLayer ("Debris"));
+		//if(hit) sprayPS.Emit (2);
+		sprayPS.Emit (2);
 	}
 
 	private void EndSlash() {
+		gameObject.layer = LayerMask.NameToLayer ("Hero");
 		savedSlashCharge = 0;
 		slashLine.enabled = false;
 		slashLineWrap.enabled = false;
@@ -303,6 +314,7 @@ public class PlayerController : MonoBehaviour
 		Time.timeScale = 1.0f;
 		Time.fixedDeltaTime = 0.02F * Time.timeScale;
 		spriteR.color = Color.white;
+		//dashPS.Stop ();
 	}
 
 	public void OnCollisionEnter2D(Collision2D collision) {
@@ -336,6 +348,9 @@ public class PlayerController : MonoBehaviour
 		GameObject explosion = Instantiate (ParticleManager.playerExplosion);
 		explosion.transform.position = transform.position;
 
+		Camera.main.StartShake (.3f, .3f, 2f, true);
+		//Camera.main.ZoomIn (10.0f, PlayerCamera.originalSize - 2.0f, transform.position);
+
 		Destroy (this.gameObject);
 	}
 
@@ -345,5 +360,6 @@ public class PlayerController : MonoBehaviour
 
 	public void Restart() {
 		playerInputEnabled = true;
+		//Camera.main.RestoreAll (1.0f);
 	}
 } 

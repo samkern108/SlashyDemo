@@ -18,7 +18,7 @@ public class LevelMaster : MonoBehaviour {
 	public static float[] highScoreTable = new float[10];
 	public static string[] highScoreNames = new string[10];
 
-	private static Vector3 playerRespawnPos = new Vector3(0,0,0);
+	private static Vector3 playerRespawnPos = new Vector3(0,-3.88f,0);
 
 	void Start () {
 		lmTransform = this.transform;

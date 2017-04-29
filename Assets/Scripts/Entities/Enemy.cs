@@ -15,7 +15,7 @@ public class Enemy : Slashable {
 		if (!missilePrefab)
 			missilePrefab = ResourceLoader.LoadPrefab ("Projectile");
 
-		InvokeRepeating ("Shoot", Random.Range(1.0f, 2.0f), shootTimer);
+		InvokeRepeating ("Shoot", Random.Range(0.5f, 1.0f), shootTimer);
 	}
 
 	public override void Slashed() {
@@ -24,6 +24,9 @@ public class Enemy : Slashable {
 	}
 
 	private void Shoot() {
+		if (!PlayerController.hero)
+			return;
+		
 		Vector3 shootDirection = (PlayerController.hero.position - transform.position).normalized;
 		float angle = Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg - 90;
 		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
@@ -39,8 +42,12 @@ public class Enemy : Slashable {
 
 	// Notifications
 
-	public void GameEnd() {
-		CancelInvoke ();
+	public void GameEnd(bool victory) {
+		Pause (true);
+	}
+
+	public void Respawn() {
+		Pause (false);
 	}
 
 	public void Pause(bool pause) {

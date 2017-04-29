@@ -121,7 +121,7 @@ public class UIManager : MonoBehaviour {
 
 	public void ShowInputHighScoreName (int index) {
 		string name;
-		victoryPanel.transform.FindChild ("NameInput").gameObject.SetActive (true);
+		//victoryPanel.transform.FindChild ("NameInput").gameObject.SetActive (true);
 	}
 
 	private static int highScoreRowHeight = 30, highScoreXOffset = 60;
@@ -148,7 +148,7 @@ public class UIManager : MonoBehaviour {
 		for (int i = 0; i < LevelMaster.highScoreTable.Length; i++) {
 			row = table.FindChild ("ScoreRow" + i).transform;
 			row.transform.FindChild ("Score").GetComponent<Text>().text = "" + ScoreAsString(LevelMaster.highScoreTable[i]);
-			row.transform.FindChild ("Name").GetComponent<Text>().text = LevelMaster.highScoreNames[i];
+			//row.transform.FindChild ("Name").GetComponent<Text>().text = LevelMaster.highScoreNames[i];
 		}
 	}
 
