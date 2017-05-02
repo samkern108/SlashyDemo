@@ -18,8 +18,12 @@ public class AudioManager : MonoBehaviour {
 
 	public static AudioSource dotAS, playerAS, playerMoveAS;
 
+	// ## Initialization >> //
+
+	// Member initialization
 	public void Awake() {
 		instance = this;
+
 		sourceTemplate = new GameObject("SourceTemplate");
 		sourceTemplate.AddComponent <AudioSource>();
 		sourceTemplate.transform.SetParent (this.transform);
@@ -29,6 +33,7 @@ public class AudioManager : MonoBehaviour {
 		//playerMoveAS = transform.FindChild ("PlayerMoveAS").GetComponent<AudioSource>();
 	}
 
+	// Static initialization
 	public static void Initialize () {
 		projectileShoot = ResourceLoader.LoadAudioClip ("Shoot");
 		projectileExplode = ResourceLoader.LoadAudioClip ("Projectile Hit Wall");
@@ -43,93 +48,9 @@ public class AudioManager : MonoBehaviour {
 		dotPickup = ResourceLoader.LoadAudioClip ("Dot Pickup");
 	}
 
-	private static bool resetPickup = true;
-	/*private static bool playPlayerMove = false;
+	// << Initialization ## //
 
-	public void PlayPlayerMove(bool play) {
-		playPlayerMove = play;
-	}
-
-	private void RepeatPlayerMove() {
-		if(playPlayerMove)
-			playerMoveAS.PlayOneShot (playerMove);
-	}*/
-		
-	public void PlayDotPickup() {
-		if (resetPickup) {
-			resetPickup = false;
-			dotAS.pitch = .55f;
-		}
-
-		dotAS.volume = .7f;
-		dotAS.PlayOneShot (dotPickup);
-		dotAS.pitch += .26f;
-	}
-		
-	public void LevelLoaded(int level) {
-		resetPickup = true;
-	}
-
-	public static void PlayPlayerDeath() {
-		playerAS.volume = .9f;
-		playerAS.pitch = Random.Range (.8f, 1.1f);
-		playerAS.PlayOneShot (playerDeath);
-	}
-
-	private static bool playerTurnSafeToPlay = true;
-
-	public static void PlayPlayerTurn() {
-		if (!playerTurnSafeToPlay) return;
-		playerTurnSafeToPlay = false;
-		playerAS.volume = Random.Range(.2f, .4f);
-		playerAS.pitch = Random.Range(.6f, .8f);
-		playerAS.PlayOneShot (playerTurn);
-		AudioManager.instance.Invoke ("PlayerTurnSafeToPlay", playerTurn.length/3);
-	}
-
-	private void PlayerTurnSafeToPlay() {
-		playerTurnSafeToPlay = true;
-	}
-
-	public static void PlayPlayerBoostCharge() {
-		playerAS.PlayOneShot (playerBoostCharge);
-	}
-
-	public static void PlayPlayerBoostRelease(float strength, float volume) {
-		playerAS.PlayOneShot (playerBoostRelease);
-		playerAS.volume = volume;
-		playerAS.pitch = strength;
-	}
-
-	private static bool wallHitSafeToPlay = true;
-
-	public static void PlayPlayerWallHit() {
-		if (!wallHitSafeToPlay) return;
-
-		playerAS.volume = .9f;
-		playerAS.pitch = Random.Range (.8f, 1.2f);
-		playerAS.PlayOneShot (playerTurn);
-		wallHitSafeToPlay = false;
-		AudioManager.instance.Invoke ("WallHitSafeToPlay", .2f);
-	}
-
-	private void WallHitSafeToPlay() {
-		wallHitSafeToPlay = true;
-	}
-
-	public static void PlayShoot() {
-		AudioSource source = GetFreeAudioSource(projectileShoot.length);
-		source.volume = Random.Range (.4f, .8f);
-		source.pitch = Random.Range (.8f, 1.2f);
-		source.PlayOneShot (projectileShoot);
-	}
-
-	public static void PlayProjectileExplode() {
-		AudioSource source = GetFreeAudioSource(projectileExplode.length);
-		source.volume = Random.Range (.2f, .4f);
-		source.pitch = Random.Range (1.0f, 1.8f);
-		source.PlayOneShot (projectileExplode);
-	}
+	// ## Audio Source Handling >> //
 
 	private static AudioSource GetFreeAudioSource(float recycleTime) {
 		if (freeSources.Count == 0) {
@@ -153,7 +74,106 @@ public class AudioManager : MonoBehaviour {
 
 	private static IEnumerator<float> RecycleSource (float wait, AudioSource source) {
 		yield return wait;
-		//source.pitch = 1.0f;
+		source.pitch = 1.0f;
 		freeSources.Add (source);
 	}
+
+	// << Audio Source Handling ## //
+		
+	// ## Dot SFX >> //
+	private static bool resetPickup = true;
+	public void N_LevelLoaded(int level) {
+		resetPickup = true;
+	}
+
+	public void PlayDotPickup() {
+		if (resetPickup) {
+			resetPickup = false;
+			dotAS.pitch = .55f;
+		}
+
+		dotAS.volume = .7f;
+		dotAS.PlayOneShot (dotPickup);
+		dotAS.pitch += .26f;
+	}
+
+	// << Dot SFX ## //
+
+	// ## Player SFX >> //
+
+	public static void PlayPlayerDeath() {
+		playerAS.volume = .9f;
+		playerAS.pitch = Random.Range (.8f, 1.1f);
+		playerAS.PlayOneShot (playerDeath);
+	}
+
+	private static bool playerTurnSafeToPlay = true;
+	private void PlayerTurnSafeToPlay() {
+		playerTurnSafeToPlay = true;
+	}
+
+	public static void PlayPlayerTurn() {
+		if (!playerTurnSafeToPlay) return;
+		playerTurnSafeToPlay = false;
+		playerAS.volume = Random.Range(.2f, .4f);
+		playerAS.pitch = Random.Range(.6f, .8f);
+		playerAS.PlayOneShot (playerTurn);
+		AudioManager.instance.Invoke ("PlayerTurnSafeToPlay", playerTurn.length/3);
+	}
+
+	public static void PlayPlayerBoostCharge() {
+		playerAS.PlayOneShot (playerBoostCharge);
+	}
+
+	public static void PlayPlayerBoostRelease(float strength, float volume) {
+		playerAS.PlayOneShot (playerBoostRelease);
+		playerAS.volume = volume;
+		playerAS.pitch = strength;
+	}
+
+	private static bool wallHitSafeToPlay = true;
+	private void WallHitSafeToPlay() {
+		wallHitSafeToPlay = true;
+	}
+
+	public static void PlayPlayerWallHit() {
+		if (!wallHitSafeToPlay) return;
+
+		playerAS.volume = .9f;
+		playerAS.pitch = Random.Range (.8f, 1.2f);
+		playerAS.PlayOneShot (playerTurn);
+		wallHitSafeToPlay = false;
+		AudioManager.instance.Invoke ("WallHitSafeToPlay", .2f);
+	}
+
+	/*private static bool playPlayerMove = false;
+
+	public void PlayPlayerMove(bool play) {
+		playPlayerMove = play;
+	}
+
+	private void RepeatPlayerMove() {
+		if(playPlayerMove)
+			playerMoveAS.PlayOneShot (playerMove);
+	}*/
+
+	// << Player SFX ## //
+
+	// ## Enemy SFX >> //
+
+	public static void PlayShoot() {
+		AudioSource source = GetFreeAudioSource(projectileShoot.length);
+		source.volume = Random.Range (.4f, .8f);
+		source.pitch = Random.Range (.8f, 1.2f);
+		source.PlayOneShot (projectileShoot);
+	}
+
+	public static void PlayProjectileExplode() {
+		AudioSource source = GetFreeAudioSource(projectileExplode.length);
+		source.volume = Random.Range (.2f, .4f);
+		source.pitch = Random.Range (1.0f, 1.8f);
+		source.PlayOneShot (projectileExplode);
+	}
+
+	// << Enemy SFX ## //
 }
