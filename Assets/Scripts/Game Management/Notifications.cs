@@ -11,22 +11,22 @@ public class Notifications : MonoBehaviour {
 	}
 
 	public void SendGameEndNotification(bool victory) {
-		BroadcastMessage ("GameEnd", victory);
+		BroadcastMessage ("N_GameEnd", victory);
 	}
 
 	public void SendPauseNotification(bool pause) {
-		BroadcastMessage ("Pause",pause);
+		BroadcastMessage ("N_Pause",pause);
 	}
 
 	public void SendRestartNotification() {
-		BroadcastMessage ("Restart");
+		BroadcastMessage ("N_Restart");
 	}
 
 	public void SendRespawnNotification() {
-		BroadcastMessage ("Respawn");
+		BroadcastMessage ("N_Respawn");
 	}
 
 	public void SendLoadLevelNotification(int level) {
-		BroadcastMessage ("LevelLoaded", level);
+		BroadcastMessage ("N_LevelLoaded", level);
 	}
 }

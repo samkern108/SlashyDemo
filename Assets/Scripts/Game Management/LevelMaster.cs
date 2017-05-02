@@ -86,7 +86,7 @@ public class LevelMaster : MonoBehaviour {
 	}
 
 	public static void Victory() {
-		float score = UIManager.self.ScoreAsFloat();
+		float score = UIManager.ScoreAsFloat();
 		UpdateHighScores (score);
 		Notifications.self.SendGameEndNotification (true);
 	}
@@ -120,7 +120,7 @@ public class LevelMaster : MonoBehaviour {
 				// This is the player's high score!!
 				// Color it yellow or some shit.
 				if (name == "" && nameTemp == "new") {
-					UIManager.self.ShowInputHighScoreName (i);
+					UIManager.ShowInputHighScoreName (i);
 					nameTemp = "";
 				} else {
 					PlayerPrefs.SetString ("HighScoreName" + i, name);

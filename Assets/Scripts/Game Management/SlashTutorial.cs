@@ -9,10 +9,10 @@ public class SlashTutorial : MonoBehaviour {
 	}
 	
 	private void DisplayTutorialText () {
-		UIManager.self.DisplaySpaceToSlash (true);
+		UIManager.DisplaySpaceToSlash (true);
 	}
 
-	public void LevelLoaded(int level) {
-		UIManager.self.DisplaySpaceToSlash (false);
+	public void N_LevelLoaded(int level) {
+		UIManager.DisplaySpaceToSlash (false);
 	}
 }

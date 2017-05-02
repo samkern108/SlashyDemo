@@ -42,15 +42,15 @@ public class Enemy : Slashable {
 
 	// Notifications
 
-	public void GameEnd(bool victory) {
-		Pause (true);
+	public void N_GameEnd(bool victory) {
+		N_Pause (true);
 	}
 
-	public void Respawn() {
-		Pause (false);
+	public void N_Respawn() {
+		N_Pause (false);
 	}
 
-	public void Pause(bool pause) {
+	public void N_Pause(bool pause) {
 		if (pause) {
 			CancelInvoke ();
 		} else {

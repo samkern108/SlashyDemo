@@ -31,7 +31,7 @@ public class ChasingEnemy : Slashable {
 
 	// Notifications
 
-	public void Pause(bool pause) {
+	public void N_Pause(bool pause) {
 		moving = !pause;
 	}
 }

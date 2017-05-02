@@ -354,11 +354,11 @@ public class PlayerController : MonoBehaviour
 		Destroy (this.gameObject);
 	}
 
-	public void GameEnd(bool victory) {
+	public void N_GameEnd(bool victory) {
 		playerInputEnabled = false;
 	}
 
-	public void Restart() {
+	public void N_Restart() {
 		playerInputEnabled = true;
 		//Camera.main.RestoreAll (1.0f);
 	}

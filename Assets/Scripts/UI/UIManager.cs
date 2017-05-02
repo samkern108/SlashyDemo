@@ -5,8 +5,8 @@ using System;
 
 public class UIManager : MonoBehaviour {
 
-	public static UIManager self;
-	private static GameObject menu;
+	public static UIManager instance;
+	private static GameObject quitMenu;
 
 	public static float timerMin = 0.0f;
 	public static float timerSec = 0.0f;
@@ -19,14 +19,15 @@ public class UIManager : MonoBehaviour {
 
 	public void Awake()
 	{
-		self = this;
-		menu = transform.FindChild ("Menu").gameObject;
+		instance = this;
+		quitMenu = transform.FindChild ("QuitMenu").gameObject;
 		levelText = transform.FindChild ("Level").GetComponent<Text>();
 		timerText = transform.FindChild ("Timer").GetComponent<Text>();
 		gameOverPanel = transform.FindChild ("Game Over").gameObject;
 		victoryPanel = transform.FindChild ("Victory").gameObject;
 
 		pressSpaceToSlash = transform.FindChild("Press Space To Slash").GetComponent<Text>();
+
 	}
 
 	public void Start()
@@ -38,7 +39,8 @@ public class UIManager : MonoBehaviour {
 	public void Update()
 	{
 		if (Input.GetKeyDown (KeyCode.Escape))
-			menu.SetActive (!menu.activeInHierarchy);
+			quitMenu.SetActive (true);
+		
 		// Does this keep time accurately enough? Should we subtract time from time started?
 		if (timing) {
 			timerSec += Time.deltaTime;
@@ -52,81 +54,42 @@ public class UIManager : MonoBehaviour {
 		}
 	}
 
-	public void ShowLevelNumber(int levelNumber)
+	public static void ShowLevelNumber(int levelNumber)
 	{
 		levelText.text = "LEVEL " + levelNumber;
 		levelText.FadeIn (2.0f, false);
 	}
 
-	public void UpdateTimerText()
+	public static void UpdateTimerText()
 	{
 		timerText.text = ScoreAsString (ScoreAsFloat());
 	}
 
-	public void DisplaySpaceToSlash(bool display)
+	public static void DisplaySpaceToSlash(bool display)
 	{
 		pressSpaceToSlash.gameObject.SetActive (display);
 		if(display) pressSpaceToSlash.Flicker ();
 	}
 
-	public void HideSpaceToSlash()
+	public static void HideSpaceToSlash()
 	{
 		pressSpaceToSlash.gameObject.SetActive (false);
 	}
 
-	// Notifications
+	public static string scoreName = "SAM";
 
-	public void GameEnd(bool victory) {
-		timing = false;
-		if (victory) {
-			levelText.enabled = true;
-			victoryPanel.SetActive (true);
-			DisplayHighScores ();
-		}
-		else
-			gameOverPanel.SetActive (true);
-	}
-
-	public void Respawn() {
-		gameOverPanel.SetActive (false);
-		victoryPanel.SetActive (false);		
-	}
-
-	public string scoreName = "SAM";
-
-	public void UpdateScoreName(string name) {
+	public static void UpdateScoreName(string name) {
 		scoreName = name;
 	}
 
-	public void Restart() {
-		levelText.enabled = true;
-		gameOverPanel.SetActive (false);
-		victoryPanel.SetActive (false);
-
-		if (victoryPanel.transform.FindChild ("NameInput").gameObject.activeInHierarchy) {
-			LevelMaster.SaveHighScoreName (0, scoreName);
-			victoryPanel.transform.FindChild ("NameInput").gameObject.SetActive (false);
-		}
-
-		timing = true;
-		timerMin = 0.0f;
-		timerSec = 0.0f;
-		timerText.text = "0:00:00";
-	}
-
-	public void LevelLoaded(int level) {
-		UIManager.self.ShowLevelNumber (level);
-		timing = true;
-	}
-
-	public void ShowInputHighScoreName (int index) {
+	public static void ShowInputHighScoreName (int index) {
 		string name;
 		//victoryPanel.transform.FindChild ("NameInput").gameObject.SetActive (true);
 	}
 
 	private static int highScoreRowHeight = 30, highScoreXOffset = 60;
 
-	private void MakeHighScoreRows() {
+	private static void MakeHighScoreRows() {
 		GameObject row;
 		int halfway = Mathf.CeilToInt (LevelMaster.highScoreTable.Length / 2);
 		for (int i = 0; i < halfway; i++) {
@@ -142,7 +105,7 @@ public class UIManager : MonoBehaviour {
 		}
 	}
 
-	private void DisplayHighScores() {
+	private static void DisplayHighScores() {
 		Transform table = victoryPanel.transform.FindChild ("ScoresTable");
 		Transform row;
 		for (int i = 0; i < LevelMaster.highScoreTable.Length; i++) {
@@ -152,11 +115,11 @@ public class UIManager : MonoBehaviour {
 		}
 	}
 
-	public float ScoreAsFloat() {
+	public static float ScoreAsFloat() {
 		return UIManager.timerMin * 60 + UIManager.timerSec;
 	}
 
-	public string ScoreAsString(float scoreFloat) {
+	public static string ScoreAsString(float scoreFloat) {
 		int minutes = Mathf.FloorToInt(scoreFloat / 60);
 		int seconds = Mathf.FloorToInt(scoreFloat % 60);
 		int milliseconds = (int)(((scoreFloat % 60) - seconds) * 10);
@@ -171,5 +134,44 @@ public class UIManager : MonoBehaviour {
 			secText = "0" + secText;
 
 		return minText + ":" + secText + ":" + millisText;
+	}
+
+	// Notifications
+
+	public void N_GameEnd(bool victory) {
+		timing = false;
+		if (victory) {
+			levelText.enabled = true;
+			victoryPanel.SetActive (true);
+			DisplayHighScores ();
+		}
+		else
+			gameOverPanel.SetActive (true);
+	}
+
+	public void N_Respawn() {
+		gameOverPanel.SetActive (false);
+		victoryPanel.SetActive (false);		
+	}
+
+	public void N_Restart() {
+		levelText.enabled = true;
+		gameOverPanel.SetActive (false);
+		victoryPanel.SetActive (false);
+
+		if (victoryPanel.transform.FindChild ("NameInput").gameObject.activeInHierarchy) {
+			LevelMaster.SaveHighScoreName (0, scoreName);
+			victoryPanel.transform.FindChild ("NameInput").gameObject.SetActive (false);
+		}
+
+		timing = true;
+		timerMin = 0.0f;
+		timerSec = 0.0f;
+		timerText.text = "0:00:00";
+	}
+
+	public void N_LevelLoaded(int level) {
+		UIManager.ShowLevelNumber (level);
+		timing = true;
 	}
 }
