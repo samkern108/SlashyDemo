@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
 	public static Transform hero;
 	private SpriteRenderer spriteR;
 	private SpriteAnimate animate;
-	private LineRenderer slashLine, slashLineWrap, slashLineCollide;
+	private LineRenderer slashLine, slashLineWrap;
 	private ParticleSystem sprayPS, dashPS;
 
 	private static GameObject slashOutline;
@@ -39,13 +39,11 @@ public class PlayerController : MonoBehaviour
 
 		slashLine = transform.FindChild ("SlashLine").GetComponent<LineRenderer>();
 		slashLineWrap = transform.FindChild ("SlashLineWrap").GetComponent<LineRenderer>();
-		slashLineCollide = transform.FindChild ("SlashLineCollide").GetComponent <LineRenderer>();
 
 		animate = GetComponent <SpriteAnimate>();
 
 		slashLine.enabled = false;
 		slashLineWrap.enabled = false;
-		slashLineCollide.enabled = false;
 	}
 
 	void Update () 
@@ -190,11 +188,13 @@ public class PlayerController : MonoBehaviour
 
 		Vector3 debrisHit = SlashLineDebrisLinecast (transform.position, slashVector);
 		if (debrisHit != Vector3.zero) {
-			if (!slashLineCollide.enabled) slashLineCollide.enabled = true;
-			slashLineCollide.SetPosition (0, transform.position);
-			slashLineCollide.SetPosition (1, debrisHit);
+			slashLine.colorGradient = Palette.slashLineRed;
+			slashThroughDebris = false;
+		} else {
+			slashLine.colorGradient = Palette.slashLineYellow;
+			slashThroughDebris = true;
 		}
-		else if(slashLineCollide.enabled) slashLineCollide.enabled = false;
+
 	
 		if (PlayerCamera.PositionOutsideBounds(slashVector)) {
 			if(!slashLineWrap.enabled) slashLineWrap.enabled = true;
@@ -215,8 +215,6 @@ public class PlayerController : MonoBehaviour
 		chargingSlash = false;
 		slashDir = transform.up;
 		savedSlashCharge = slashCharge;
-
-		if (slashLineCollide.enabled) slashLine.enabled = false;
 
 		Camera.main.StartShake (slashCharge/15, slashCharge/15, true);
 		Camera.main.RestoreSize (1.0f);
@@ -244,9 +242,6 @@ public class PlayerController : MonoBehaviour
 				transform.position = SlashLinecast (transform.position, transform.position + slashIncrement);
 
 			SlashingThroughWater ();
-
-			if (slashLineCollide.enabled)
-				slashLineCollide.SetPosition (0, transform.position);
 			
 			if (slashLine.enabled)
 				slashLine.SetPosition (0, transform.position);
@@ -263,10 +258,12 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
+	private bool slashThroughDebris = false;
+
+	// Determine if we should run into a wall or into debris
 	private Vector3 SlashLinecast(Vector3 position, Vector3 newPosition)
 	{
-		// Determine if we should run into a wall or into debris
-		if (slashLineCollide.enabled)
+		if (!slashThroughDebris)
 			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer ("Debris"));
 		else
 			hit = Physics2D.Linecast (position, newPosition, 1 << LayerMask.NameToLayer ("Impassable"));
@@ -289,6 +286,7 @@ public class PlayerController : MonoBehaviour
 		return endLine;
 	}
 
+	// TODO(samkern): Should return the raycast hit instead.
 	// returns Vector3.zero if we should NOT display the debris arrow.
 	private Vector3 SlashLineDebrisLinecast(Vector3 startLine, Vector3 endLine)
 	{
@@ -309,7 +307,6 @@ public class PlayerController : MonoBehaviour
 		savedSlashCharge = 0;
 		slashLine.enabled = false;
 		slashLineWrap.enabled = false;
-		slashLineCollide.enabled = false;
 		Camera.main.ReturnScreen ();
 		Time.timeScale = 1.0f;
 		Time.fixedDeltaTime = 0.02F * Time.timeScale;
