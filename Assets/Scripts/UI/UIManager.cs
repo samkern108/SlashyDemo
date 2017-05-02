@@ -43,7 +43,7 @@ public class UIManager : MonoBehaviour {
 		
 		// Does this keep time accurately enough? Should we subtract time from time started?
 		if (timing) {
-			timerSec += Time.deltaTime;
+			timerSec += Time.unscaledDeltaTime;
 
 			if (timerSec >= 60) {
 				timerSec -= 60;
