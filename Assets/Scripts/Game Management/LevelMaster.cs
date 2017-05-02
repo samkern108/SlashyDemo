@@ -25,6 +25,7 @@ public class LevelMaster : MonoBehaviour {
 		IOManager.Initialize ();
 		ParticleManager.Initialize ();
 		AudioManager.Initialize ();
+		Palette.Initialize ();
 
 		levelContainer = transform.FindChild ("LevelContainer").gameObject;
 		heroPrefab = ResourceLoader.LoadPrefab ("Hero");
