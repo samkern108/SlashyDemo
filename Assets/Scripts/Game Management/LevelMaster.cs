@@ -12,12 +12,14 @@ public class LevelMaster : MonoBehaviour {
 	public static int enemiesRemaining = 0;
 	private static int blueDotsRemaining = 0;
 	public static GameObject levelContainer;
+	public static Transform inactiveLevelsParent;
 	public static Transform lmTransform;
 	public static GameObject hero, heroPrefab;
 
 	public static float[] highScoreTable = new float[10];
 	public static string[] highScoreNames = new string[10];
 
+	// Hacky
 	private static Vector3 playerRespawnPos = new Vector3(0,-3.88f,0);
 
 	void Start () {
@@ -28,6 +30,7 @@ public class LevelMaster : MonoBehaviour {
 		Palette.Initialize ();
 
 		levelContainer = transform.FindChild ("LevelContainer").gameObject;
+		inactiveLevelsParent = GameObject.Find ("Levels").transform;
 		heroPrefab = ResourceLoader.LoadPrefab ("Hero");
 
 		for(int i = 0; i < highScoreTable.Length; i++) {
@@ -44,7 +47,7 @@ public class LevelMaster : MonoBehaviour {
 	}
 
 	public static bool LoadNextLevel() {
-		GameObject levelObject = ResourceLoader.LoadLevelPrefab (level);
+		GameObject levelObject = inactiveLevelsParent.FindChild ("Level " + level).gameObject;//ResourceLoader.LoadLevelPrefab (level);
 		if (!levelObject)
 			return false;
 		
@@ -55,6 +58,8 @@ public class LevelMaster : MonoBehaviour {
 
 		Destroy (levelContainer);
 		levelContainer = Instantiate(levelObject, levelContainer.transform.parent);
+		levelContainer.SetActive (true);
+		levelContainer.name = "LevelContainer";
 
 		level++;
 
