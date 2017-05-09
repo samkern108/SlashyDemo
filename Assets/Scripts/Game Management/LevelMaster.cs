@@ -47,7 +47,7 @@ public class LevelMaster : MonoBehaviour {
 	}
 
 	public static bool LoadNextLevel() {
-		GameObject levelObject = inactiveLevelsParent.FindChild ("Level " + level).gameObject;//ResourceLoader.LoadLevelPrefab (level);
+		Transform levelObject = inactiveLevelsParent.FindChild ("Level " + level);//ResourceLoader.LoadLevelPrefab (level);
 		if (!levelObject)
 			return false;
 		
@@ -57,7 +57,7 @@ public class LevelMaster : MonoBehaviour {
 		Notifications.self.SendLoadLevelNotification(level);
 
 		Destroy (levelContainer);
-		levelContainer = Instantiate(levelObject, levelContainer.transform.parent);
+		levelContainer = Instantiate(levelObject.gameObject, levelContainer.transform.parent);
 		levelContainer.SetActive (true);
 		levelContainer.name = "LevelContainer";
 
