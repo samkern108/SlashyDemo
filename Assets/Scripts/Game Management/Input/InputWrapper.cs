@@ -111,7 +111,7 @@ public class InputWrapper : MonoBehaviour {
 
 		if (joysticks.Length > 0) {
 			isGamepadConnected = true;
-			AssignPSControls ();
+			AssignMacXBOXControls ();
 		} else {
 			AssignKeyboardControls ();
 		}

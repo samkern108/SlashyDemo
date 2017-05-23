@@ -28,8 +28,8 @@ public class AudioManager : MonoBehaviour {
 		sourceTemplate.AddComponent <AudioSource>();
 		sourceTemplate.transform.SetParent (this.transform);
 
-		dotAS = transform.FindChild ("DotAS").GetComponent<AudioSource>();
-		playerAS = transform.FindChild ("PlayerAS").GetComponent<AudioSource>();
+		dotAS = transform.Find ("DotAS").GetComponent<AudioSource>();
+		playerAS = transform.Find ("PlayerAS").GetComponent<AudioSource>();
 		//playerMoveAS = transform.FindChild ("PlayerMoveAS").GetComponent<AudioSource>();
 	}
 

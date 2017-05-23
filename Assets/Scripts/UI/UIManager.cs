@@ -20,13 +20,13 @@ public class UIManager : MonoBehaviour {
 	public void Awake()
 	{
 		instance = this;
-		quitMenu = transform.FindChild ("QuitMenu").gameObject;
-		levelText = transform.FindChild ("Level").GetComponent<Text>();
-		timerText = transform.FindChild ("Timer").GetComponent<Text>();
-		gameOverPanel = transform.FindChild ("Game Over").gameObject;
-		victoryPanel = transform.FindChild ("Victory").gameObject;
+		quitMenu = transform.Find ("QuitMenu").gameObject;
+		levelText = transform.Find ("Level").GetComponent<Text>();
+		timerText = transform.Find ("Timer").GetComponent<Text>();
+		gameOverPanel = transform.Find ("Game Over").gameObject;
+		victoryPanel = transform.Find ("Victory").gameObject;
 
-		pressSpaceToSlash = transform.FindChild("Press Space To Slash").GetComponent<Text>();
+		pressSpaceToSlash = transform.Find("Press Space To Slash").GetComponent<Text>();
 
 	}
 
@@ -95,22 +95,22 @@ public class UIManager : MonoBehaviour {
 		for (int i = 0; i < halfway; i++) {
 			row = Instantiate (highScoreRow);
 			row.name = "ScoreRow" + i;
-			row.transform.SetParent (victoryPanel.transform.FindChild("ScoresTable"));
+			row.transform.SetParent (victoryPanel.transform.Find("ScoresTable"));
 			row.transform.localPosition = new Vector3 (-highScoreXOffset, -(highScoreRowHeight * i));
 
 			row = Instantiate (highScoreRow);
 			row.name = "ScoreRow" + (i + halfway);
-			row.transform.SetParent (victoryPanel.transform.FindChild("ScoresTable"));
+			row.transform.SetParent (victoryPanel.transform.Find("ScoresTable"));
 			row.transform.localPosition = new Vector3 (highScoreXOffset, -(highScoreRowHeight * i));
 		}
 	}
 
 	private static void DisplayHighScores() {
-		Transform table = victoryPanel.transform.FindChild ("ScoresTable");
+		Transform table = victoryPanel.transform.Find ("ScoresTable");
 		Transform row;
 		for (int i = 0; i < LevelMaster.highScoreTable.Length; i++) {
-			row = table.FindChild ("ScoreRow" + i).transform;
-			row.transform.FindChild ("Score").GetComponent<Text>().text = "" + ScoreAsString(LevelMaster.highScoreTable[i]);
+			row = table.Find ("ScoreRow" + i).transform;
+			row.transform.Find ("Score").GetComponent<Text>().text = "" + ScoreAsString(LevelMaster.highScoreTable[i]);
 			//row.transform.FindChild ("Name").GetComponent<Text>().text = LevelMaster.highScoreNames[i];
 		}
 	}
@@ -159,9 +159,9 @@ public class UIManager : MonoBehaviour {
 		gameOverPanel.SetActive (false);
 		victoryPanel.SetActive (false);
 
-		if (victoryPanel.transform.FindChild ("NameInput").gameObject.activeInHierarchy) {
+		if (victoryPanel.transform.Find ("NameInput").gameObject.activeInHierarchy) {
 			LevelMaster.SaveHighScoreName (0, scoreName);
-			victoryPanel.transform.FindChild ("NameInput").gameObject.SetActive (false);
+			victoryPanel.transform.Find ("NameInput").gameObject.SetActive (false);
 		}
 
 		timing = true;

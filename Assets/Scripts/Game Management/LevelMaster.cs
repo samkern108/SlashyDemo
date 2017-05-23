@@ -29,7 +29,7 @@ public class LevelMaster : MonoBehaviour {
 		AudioManager.Initialize ();
 		Palette.Initialize ();
 
-		levelContainer = transform.FindChild ("LevelContainer").gameObject;
+		levelContainer = transform.Find ("LevelContainer").gameObject;
 		inactiveLevelsParent = GameObject.Find ("Levels").transform;
 		heroPrefab = ResourceLoader.LoadPrefab ("Hero");
 
@@ -47,7 +47,7 @@ public class LevelMaster : MonoBehaviour {
 	}
 
 	public static bool LoadNextLevel() {
-		Transform levelObject = inactiveLevelsParent.FindChild ("Level " + level);//ResourceLoader.LoadLevelPrefab (level);
+		Transform levelObject = inactiveLevelsParent.Find ("Level " + level);//ResourceLoader.LoadLevelPrefab (level);
 		if (!levelObject)
 			return false;
 		

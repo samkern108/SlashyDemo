@@ -27,18 +27,18 @@ public class PlayerController : MonoBehaviour
 	{
 		hero = this.transform;
 		originalScale = transform.localScale;
-		slashOutline = transform.FindChild ("SlashOutline").gameObject;
+		slashOutline = transform.Find ("SlashOutline").gameObject;
 		slashOutlineScale = slashOutline.transform.localScale;
 		slashOutline.SetActive (false);
 
-		dashPS = transform.FindChild ("Dash").GetComponent<ParticleSystem>();
+		dashPS = transform.Find ("Dash").GetComponent<ParticleSystem>();
 		dashPS.Stop ();
 
-		sprayPS = transform.FindChild ("Spray").GetComponent<ParticleSystem>();
+		sprayPS = transform.Find ("Spray").GetComponent<ParticleSystem>();
 		spriteR = GetComponent<SpriteRenderer> ();
 
-		slashLine = transform.FindChild ("SlashLine").GetComponent<LineRenderer>();
-		slashLineWrap = transform.FindChild ("SlashLineWrap").GetComponent<LineRenderer>();
+		slashLine = transform.Find ("SlashLine").GetComponent<LineRenderer>();
+		slashLineWrap = transform.Find ("SlashLineWrap").GetComponent<LineRenderer>();
 
 		animate = GetComponent <SpriteAnimate>();
 
