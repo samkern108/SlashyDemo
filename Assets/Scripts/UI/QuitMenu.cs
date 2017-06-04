@@ -13,14 +13,14 @@ public class QuitMenu : MonoBehaviour {
 	}
 
 	void Update () {
-		if (Input.GetKeyDown (KeyCode.Escape)) {
+		if (LevelMaster.input.MenuExit()) {
 			gameObject.SetActive (false);
 		}
 		
 		else if (Input.GetKeyDown (KeyCode.Q))
 			Application.Quit ();
 
-		else if (Input.GetKeyDown (KeyCode.Space)) {
+		else if (LevelMaster.input.Continue()) {
 			LevelMaster.Restart ();
 			Notifications.self.SendPauseNotification (false);
 			gameObject.SetActive (false);

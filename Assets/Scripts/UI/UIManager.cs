@@ -38,7 +38,7 @@ public class UIManager : MonoBehaviour {
 
 	public void Update()
 	{
-		if (Input.GetKeyDown (KeyCode.Escape))
+		if (LevelMaster.input.MenuOpen())
 			quitMenu.SetActive (true);
 		
 		// Does this keep time accurately enough? Should we subtract time from time started?

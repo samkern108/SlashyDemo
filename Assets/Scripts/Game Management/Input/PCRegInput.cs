@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PCInput : InputWrapper {
+public class PCRegInput : InputWrapper {
 
 	public override bool MenuPress() {
 		return Input.GetKeyDown(KeyCode.Escape);
@@ -35,7 +35,7 @@ public class PCInput : InputWrapper {
 	}
 
 	public override bool IsSlashAnalog () {
-		return true;
+		return false;
 	}
 
 	public override float GetHorizontalSlashAxis ()
@@ -49,12 +49,10 @@ public class PCInput : InputWrapper {
 	}
 
 	public override bool SlashDown () {
-		//return Input.GetKeyDown(KeyCode.Space);
-		return (GetHorizontalSlashAxis() != 0 || GetVerticalSlashAxis() != 0);
+		return Input.GetKeyDown(KeyCode.Space);
 	}
 
 	public override bool SlashUp () {
-		//return Input.GetKeyUp(KeyCode.Space);
-		return (GetHorizontalSlashAxis() == 0 && GetVerticalSlashAxis() == 0);
+		return Input.GetKeyUp(KeyCode.Space);
 	}
 }

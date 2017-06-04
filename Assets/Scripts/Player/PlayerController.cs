@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour 
 {
-	private Vector2 input, inputPrev;
+	private Vector2 input, inputPrev, slashInput;
 	private bool playerInputEnabled = true;
 
 	public static Transform hero;
@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
 	private Vector3 slashOutlineScale;
 	private Vector3 slashOutlineMaxScale = new Vector3(1.5f, 1.5f, 0);
 
-	private float runSpeed = 5.5f, walkSpeed = 3f;
+	private float runSpeed = 7f, walkSpeed = 3f;
 	private float currentSpeed = 0f;
 
 	private Vector3 originalScale;
@@ -51,8 +51,15 @@ public class PlayerController : MonoBehaviour
 		if (playerInputEnabled) 
 		{
 			inputPrev = input;
-			input.y = InputWrapper.GetVerticalAxis ();
-			input.x = InputWrapper.GetHorizontalAxis ();
+			input.y = LevelMaster.input.GetVerticalAxis ();
+			input.x = LevelMaster.input.GetHorizontalAxis ();
+
+			if (LevelMaster.input.IsSlashAnalog ()) {
+				slashInput.y = LevelMaster.input.GetVerticalSlashAxis ();
+				slashInput.x = LevelMaster.input.GetHorizontalSlashAxis ();
+			} else {
+				slashInput = (Vector2)(transform.position + slashCharge * transform.up);
+			}
 
 			if (chargingSlash) ChargeSlash ();
 
@@ -60,9 +67,9 @@ public class PlayerController : MonoBehaviour
 				ApplySlashDistance();
 			else {
 				Move ();
-				if (Input.GetKeyDown (KeyCode.Space)) 
+				if (LevelMaster.input.SlashDown()) 
 					BeginSlash ();
-				if (Input.GetKeyUp (KeyCode.Space) && chargingSlash) 
+				if (LevelMaster.input.SlashUp() && chargingSlash) 
 					ReleaseSlash ();
 			}
 		}
@@ -82,7 +89,8 @@ public class PlayerController : MonoBehaviour
 
 		// Smoothly rotate to face direction
 		// TODO(samkern): Need to tune movement.
-		if(Input.GetAxisRaw ("Horizontal") != 0 || Input.GetAxisRaw ("Vertical") != 0)
+		if(LevelMaster.input.GetHorizontalAxis() != 0 || LevelMaster.input.GetVerticalAxis() != 0)
+		//if(Input.GetAxisRaw ("Horizontal") != 0 || Input.GetAxisRaw ("Vertical") != 0)
 			Rotate((Vector3)input, false);
 		else
 			transform.localScale = originalScale;
@@ -113,6 +121,18 @@ public class PlayerController : MonoBehaviour
 			//	AudioManager.PlayPlayerTurn ();
 		}
 	}
+
+	/*private void MoveTank() {
+		if (input == Vector2.zero) {
+			currentSpeed = 0;
+			return;
+		}
+	
+		currentSpeed = ((1 * currentSpeed) + (chargingSlash ? walkSpeed : runSpeed))/2;
+		Vector3 newPosition = transform.position + (transform.up * input.y) * currentSpeed * Time.deltaTime;
+		transform.RotateAround(transform.position, new Vector3(0,0,1), -input.x * 5);
+		transform.position = MoveRaycast(PlayerCamera.WrapWithinCameraBounds (newPosition));
+	}*/
 
 	private static RaycastHit2D hit;
 	private bool alreadyColliding = false;
@@ -181,7 +201,7 @@ public class PlayerController : MonoBehaviour
 
 		Camera.main.SingleShake (slashCharge/80, slashCharge/80);
 
-		Vector3 slashVector = transform.position + slashCharge * transform.up;
+		Vector3 slashVector = slashInput;
 
 		slashLine.SetPosition (0, transform.position);
 		slashLine.SetPosition (1, SlashLineLinecast(transform.position, slashVector));

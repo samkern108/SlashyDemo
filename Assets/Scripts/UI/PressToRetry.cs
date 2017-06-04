@@ -5,7 +5,7 @@ using UnityEngine;
 public class PressToRetry : MonoBehaviour {
 
 	void Update () {
-		if (Input.GetKeyDown(KeyCode.Space)) {
+		if (LevelMaster.input.Continue()) {
 			LevelMaster.Respawn ();
 			gameObject.SetActive (false);
 		}	

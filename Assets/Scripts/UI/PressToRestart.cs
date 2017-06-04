@@ -5,7 +5,7 @@ using UnityEngine;
 public class PressToRestart : MonoBehaviour {
 
 	void Update () {
-		if (Input.GetKeyDown(KeyCode.Space)) {
+		if (LevelMaster.input.Continue()) {
 			LevelMaster.Restart ();
 			gameObject.SetActive (false);
 		}	

@@ -19,6 +19,12 @@ public class LevelMaster : MonoBehaviour {
 	public static float[] highScoreTable = new float[10];
 	public static string[] highScoreNames = new string[10];
 
+	// Input
+	public static InputWrapper input;
+	private static bool isGamepadConnected = false;
+	private static float joystickCheckTimer = 0f;
+	private static float joystickCheckTimeout = 2f;
+
 	// Hacky
 	private static Vector3 playerRespawnPos = new Vector3(0,-3.88f,0);
 
@@ -36,6 +42,20 @@ public class LevelMaster : MonoBehaviour {
 		for(int i = 0; i < highScoreTable.Length; i++) {
 			highScoreTable[i] = PlayerPrefs.GetFloat("HighScore" + i);
 			highScoreNames[i] = PlayerPrefs.GetString("HighScoreName" + i);
+		}
+
+		DetermineInputType ();
+	}
+
+	private void DetermineInputType()
+	{
+		string[] joysticks = Input.GetJoystickNames ();
+
+		if (joysticks.Length > 0) {
+			isGamepadConnected = true;
+			input = new MacXBOXInput ();
+		} else {
+			input = new PCRegInput ();
 		}
 	}
 
