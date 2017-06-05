@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour
 	private Vector2 input, inputPrev, slashInput;
 	private bool playerInputEnabled = true;
 
+	public static bool slashEnabled = false;
+
 	public static Transform hero;
 	private SpriteRenderer spriteR;
 	private SpriteAnimate animate;
@@ -67,7 +69,7 @@ public class PlayerController : MonoBehaviour
 				ApplySlashDistance();
 			else {
 				Move ();
-				if (LevelMaster.input.SlashDown()) 
+				if (slashEnabled && LevelMaster.input.SlashDown()) 
 					BeginSlash ();
 				if (LevelMaster.input.SlashUp() && chargingSlash) 
 					ReleaseSlash ();
@@ -103,10 +105,24 @@ public class PlayerController : MonoBehaviour
 		if (transform.eulerAngles == dir) return;
 
 		float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90;
-		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
 
-		if (instant) transform.rotation = q;
+		if (instant) {
+			Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+			transform.rotation = q;
+		}
+		else if (chargingSlash) {
+			if (angle > 60) {
+				angle = 60;
+			}
+			Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+
+			transform.rotation = Quaternion.Slerp (transform.rotation, q, (Time.unscaledDeltaTime * 2));
+			float rotAngle = Quaternion.Angle (transform.rotation, q);
+			currentSpeed = Mathf.Clamp(currentSpeed - (currentSpeed * (rotAngle / 1080)), 0, currentSpeed);
+		}
 		else {
+			Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+
 			transform.rotation = Quaternion.Slerp (transform.rotation, q, (Time.unscaledDeltaTime) * 8.0f);
 			float rotAngle = Quaternion.Angle (transform.rotation, q);
 			currentSpeed = Mathf.Clamp(currentSpeed - (currentSpeed * (rotAngle / 1080)), 0, currentSpeed);
@@ -161,7 +177,7 @@ public class PlayerController : MonoBehaviour
 	private bool chargingSlash = false;
 
 	private float slashCharge;
-	private float slashChargeRate = 4f;
+	private float slashChargeRate = 6f;
 	private float slashChargeMax = 6f;
 	private float slashChargeBase = .2f;
 

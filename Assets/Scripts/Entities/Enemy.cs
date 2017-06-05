@@ -28,6 +28,12 @@ public class Enemy : Slashable {
 			return;
 		
 		Vector3 shootDirection = (PlayerController.hero.position - transform.position).normalized;
+
+		/*RaycastHit2D hit = Physics2D.Linecast (transform.position, PlayerController.hero.position, 1 << LayerMask.NameToLayer("Impassable"));
+		if (hit.collider) {
+			return;
+		}*/
+
 		float angle = Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg - 90;
 		Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
 		transform.rotation = q;

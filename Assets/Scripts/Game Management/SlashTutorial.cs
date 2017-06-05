@@ -5,6 +5,7 @@ using UnityEngine;
 public class SlashTutorial : MonoBehaviour {
 
 	void Start () {
+		PlayerController.slashEnabled = true;
 		Invoke ("DisplayTutorialText", 2.0f);
 	}
 	

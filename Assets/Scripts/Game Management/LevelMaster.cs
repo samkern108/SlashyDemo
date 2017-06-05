@@ -123,7 +123,7 @@ public class LevelMaster : MonoBehaviour {
 
 	public static void Restart() {
 		Notifications.self.SendRestartNotification ();
-		InitHero (playerRespawnPos);
+		InitHero (new Vector3(0,-3.88f,0));
 		level = 1;
 		LoadNextLevel ();
 	}
