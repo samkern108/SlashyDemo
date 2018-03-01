@@ -53,23 +53,24 @@ public class AudioManager : MonoBehaviour {
 	// ## Audio Source Handling >> //
 
 	private static AudioSource GetFreeAudioSource(float recycleTime) {
+		AudioSource source;
 		if (freeSources.Count == 0) {
 			GameObject obj = Instantiate (sourceTemplate);
 			obj.transform.SetParent (AudioManager.instance.transform);
 			activeSources++;
-			return obj.GetComponent <AudioSource>();
+			source = obj.GetComponent <AudioSource>();
 		}
 		else {
 			// Race condition?
-			AudioSource source = freeSources[0];
+			source = freeSources[0];
 			freeSources.RemoveAt (0);
-			// Figure out a better way to determine if sources can be removed.
+			// TODO: Figure out a better way to determine if sources can be removed.
 			if (freeSources.Count >= (int)Mathf.Ceil (activeSources / 2)) {
 				freeSources.RemoveRange (0, (int)Mathf.Floor (activeSources / 2));
 			}
-			Timing.RunCoroutine (RecycleSource(recycleTime + .1f, source));
-			return source;
 		}
+		Timing.RunCoroutine (RecycleSource(recycleTime + .1f, source));
+		return source;
 	}
 
 	private static IEnumerator<float> RecycleSource (float wait, AudioSource source) {
